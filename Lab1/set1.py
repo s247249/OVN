@@ -210,7 +210,7 @@ def proxyEx(a, returns=False):
         "12": ex12
     }
 
-    if a != "0":
+    if a not in ex:
         print("Invalid choice")
         return
 
