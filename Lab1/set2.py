@@ -30,7 +30,17 @@ def ex1():
 #    position and also, at the end of the list
 #    sampleList = [34, 54, 67, 89, 11, 43, 94]
 def ex2():
-    sampleList = [34, 54, 67, 89, 11, 43, 94]
+#    sampleList = [34, 54, 67, 89, 11, 43, 94]
+    stay = True
+    while stay:
+        sampleList = input("Insert a list of integers of at least 5 items: ")
+        sampleList = sampleList.split()
+        if len(sampleList) < 5:
+            print("Insufficient number of integers, try again")
+        else:
+            stay = False
+    for i in range(len(sampleList)):
+        sampleList[i] = int(sampleList[i])
     print("Input list: " + str(sampleList))
 
     """
@@ -45,6 +55,12 @@ def ex2():
     sampleList.append(a)
 
     print("Output list: " + str(sampleList))
+
+
+# 3. Given a list slice it into a 3 equal chunks and revert each list
+#    sampleList = [11, 45, 8, 23, 14, 12, 78, 45, 89]
+def ex3():
+    sampleList = [11, 45, 8, 23, 14, 12, 78, 45, 89]
 
 
 if __name__ == '__main__':
@@ -66,5 +82,5 @@ if __name__ == '__main__':
         a = str(input("\nWhich exercise should I run now? (0 to close the program) "))
         if a in ex:
             ex[a]()
-        elif a!= "0":
+        elif a != "0":
             print("Invalid choice")
