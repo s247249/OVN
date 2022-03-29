@@ -62,13 +62,24 @@ def ex2():
 def ex3():
     sampleList = [11, 45, 8, 23, 14, 12, 78, 45, 89]
 
+    l1 = list(sampleList[:int(len(sampleList)/3)])
+    l2 = list(sampleList[int(len(sampleList)/3):2*int(len(sampleList)/3)])
+    l3 = list(sampleList[2*int(len(sampleList)/3):])
+
+    l1.reverse()
+    l2.reverse()
+    l3.reverse()
+
+    print("Sample List: " + str(sampleList))
+    print("Reverted chunks:\n" + str(l1) + "\n" + str(l2) + "\n" + str(l3))
+
 
 if __name__ == '__main__':
     a = 1
     ex = {
         "1": ex1,
         "2": ex2,
- #       "3": ex3,
+        "3": ex3,
   #      "4": ex4,
    #     "5": ex5,
     #    "6": ex6,
