@@ -103,6 +103,53 @@ def ex5():
     print("Set:\n" + str(set1))
 
 
+# 6. Given a following two sets and the intersection and remove those elements
+#    from the first set
+#    firstSet = {23, 42, 65, 57, 78, 83, 29}
+#    secondSet = {57, 83, 29, 67, 73, 43, 48}
+def ex6():
+    firstSet = {23, 42, 65, 57, 78, 83, 29}
+    secondSet = {57, 83, 29, 67, 73, 43, 48}
+
+    print("Sets:\n" + str(firstSet) + "\n" + str(secondSet))
+
+    for i in secondSet:
+        if i in firstSet:
+            firstSet.remove(i)
+
+    print("Updated first set:\n" + str(firstSet))
+
+
+# 7. Given two sets, Checks if One Set is Subset or superset of Another Set. if
+#    the subset is found delete all elements from that set
+#    firstSet = {57, 83, 29}
+#    secondSet = {57, 83, 29, 67, 73, 43, 48}
+def ex7():
+    firstSet = {57, 83, 29}
+    secondSet = {57, 83, 29, 67, 73, 43, 48}
+    cnt = 0
+
+    print("Sets:\n" + str(firstSet) + "\n" + str(secondSet))
+
+    for i in firstSet:
+        if i in secondSet:
+            cnt += 1
+
+    if firstSet.issuperset(secondSet):
+        print("The first set is a superset of the second one")
+    if secondSet.issuperset(firstSet):
+        print("The second set is a superset of the first one")
+
+    if firstSet.issubset(secondSet):
+        print("The first set is a subset of the second one \nDeleting set")
+        firstSet.clear()
+
+    if secondSet.issubset(firstSet):
+        print("The second set is a subset of the first one \nDeleting set")
+        secondSet.clear()
+
+    print("Resulting sets:\n" + str(firstSet) + "\n" + str(secondSet))
+
 if __name__ == '__main__':
     a = 1
     ex = {
@@ -111,8 +158,8 @@ if __name__ == '__main__':
         "3": ex3,
         "4": ex4,
         "5": ex5,
-    #    "6": ex6,
-     #   "7": ex7,
+        "6": ex6,
+        "7": ex7,
       #  "8": ex8,
        # "9": ex9,
 #        "10": ex10
