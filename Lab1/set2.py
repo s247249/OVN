@@ -94,6 +94,13 @@ def ex4():
 #    from both lists in the pair
 #    firstList = [2, 3, 4, 5, 6, 7, 8]
 #    secondList = [4, 9, 16, 25, 36, 49, 64]
+def ex5():
+    firstList = [2, 3, 4, 5, 6, 7, 8]
+    secondList = [4, 9, 16, 25, 36, 49, 64]
+    print("Lists:\n" + str(firstList) + "\n" + str(secondList))
+
+    set1 = set(zip(firstList, secondList))
+    print("Set:\n" + str(set1))
 
 
 if __name__ == '__main__':
@@ -103,7 +110,7 @@ if __name__ == '__main__':
         "2": ex2,
         "3": ex3,
         "4": ex4,
-   #     "5": ex5,
+        "5": ex5,
     #    "6": ex6,
      #   "7": ex7,
       #  "8": ex8,
