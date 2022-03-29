@@ -177,7 +177,7 @@ def ex12():
     print("Analyzing the string: \"%s\" " % (s), end='')
 
     # pretend to do things
-    for i in range(random.randint(4, 8)):
+    for i in range(random.randint(4, 7)):
         time.sleep(1)
         print(".", end='')
     print()
