@@ -210,8 +210,12 @@ def proxyEx(a, returns=False):
         "12": ex12
     }
 
+    if a != "0":
+        print("Invalid choice")
+        return
+
     if returns:
-        value = ex[a]
+        value = ex[a]()
         print("Returned value " + str(value))
 
     else:
