@@ -90,6 +90,12 @@ def ex4():
         print("Value: \"%s\"  \t Occurrences: %d" % (str(i), int(d[i])))
 
 
+# 5. Given a two list of equal size create a set such that it shows the element
+#    from both lists in the pair
+#    firstList = [2, 3, 4, 5, 6, 7, 8]
+#    secondList = [4, 9, 16, 25, 36, 49, 64]
+
+
 if __name__ == '__main__':
     a = 1
     ex = {
