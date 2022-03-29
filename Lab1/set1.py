@@ -191,7 +191,7 @@ def ex12():
             d[s[i]] = s.count(s[i])
 
     for i in d:
-        print("Key: \"%s\" \t Occurences: %d" % (str(i), int(d[i])))
+        print("Key: \"%s\" \t Occurrences: %d" % (str(i), int(d[i])))
 
 
 def proxyEx(a, returns=False):

@@ -74,13 +74,29 @@ def ex3():
     print("Reverted chunks:\n" + str(l1) + "\n" + str(l2) + "\n" + str(l3))
 
 
+# 4. Given a list iterate it and count the occurrence of each element and create
+#    a dictionary to show the count of each element
+#    sampleList = [11, 45, 8, 11, 23, 45, 23, 45, 89]
+def ex4():
+    sl = [11, 45, 8, 11, 23, 45, 23, 45, 89]
+    d = {}
+
+    print("List: " + str(sl))
+    for i in range(len(sl)):
+        if sl[i] not in d:
+            d[sl[i]] = sl.count(sl[i])
+
+    for i in d:
+        print("Value: \"%s\"  \t Occurrences: %d" % (str(i), int(d[i])))
+
+
 if __name__ == '__main__':
     a = 1
     ex = {
         "1": ex1,
         "2": ex2,
         "3": ex3,
-  #      "4": ex4,
+        "4": ex4,
    #     "5": ex5,
     #    "6": ex6,
      #   "7": ex7,
