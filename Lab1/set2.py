@@ -150,6 +150,62 @@ def ex7():
 
     print("Resulting sets:\n" + str(firstSet) + "\n" + str(secondSet))
 
+
+# 8. Iterate a given list and Check if a given element already exists in a dictio-
+#    nary as a key's value if not delete it from the list
+#    rollNumber = [47, 64, 69, 37, 76, 83, 95, 97]
+#    sampleDict = {'Jhon':47, 'Emma':69, 'Kelly':76, 'Jason':97
+def ex8():
+    rollNumber = [47, 64, 69, 37, 76, 83, 95, 97]
+    sampleDict = {'Jhon':47, 'Emma':69, 'Kelly':76, 'Jason':97}
+
+    print("Initial list: " + str(rollNumber))
+    print("Dictionary: " + str(sampleDict))
+
+    for i in rollNumber:
+        if i not in sampleDict.values():
+            rollNumber.remove(i)
+
+    print("Resulting list: " + str(rollNumber))
+
+
+# 9. Given a dictionary get all values from the dictionary and add it in a list
+#    but don't add duplicates.
+#    speed = {'Jan ':47 , 'Feb ':52 , 'March ':47 , 'April ':44 , 'May ':52 ,
+#             'June ':53 , 'July ':54 , 'Aug ':44 , 'Sept ':54}
+def ex9():
+    speed = {'Jan ': 47, 'Feb ': 52, 'March ': 47, 'April ': 44, 'May ': 52,
+             'June ': 53 , 'July ': 54 , 'Aug ':44 , 'Sept ': 54}
+    l = []
+
+    print("Dictionary: " + str(speed))
+
+    for i in speed.values():
+        if i not in l:
+            l.append(i)
+
+    print("Resulting string: " + str(l))
+
+
+# 10. Remove duplicate from a list and create a tuple and find the minimum
+#     and maximum number
+#     sampleList = [87, 52, 44, 53, 54, 87, 52, 53]
+def ex10():
+    sampleList = [87, 52, 44, 53, 54, 87, 52, 53]
+
+    print("Initial list: " + str(sampleList))
+
+    for i in sampleList:
+        if sampleList.count(i) > 1:
+            sampleList.remove(i)
+
+    t = tuple(sampleList[:])
+    print("Final list: " + str(sampleList))
+    print("Tuple: " + str(t))
+    sampleList.sort()
+    print("Maximum in list: " + str(sampleList[-1]) + "\nMinimum in list: " + str(sampleList[0]))
+
+
 if __name__ == '__main__':
     a = 1
     ex = {
@@ -160,9 +216,9 @@ if __name__ == '__main__':
         "5": ex5,
         "6": ex6,
         "7": ex7,
-      #  "8": ex8,
-       # "9": ex9,
-#        "10": ex10
+        "8": ex8,
+        "9": ex9,
+        "10": ex10
     }
 
     while a != "0":
