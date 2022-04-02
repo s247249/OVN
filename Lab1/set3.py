@@ -79,6 +79,33 @@ def ex6():
     print("Sorted array:\n" + str(a))
 
 
+# 7. Given the following numPy array, print the max of axis 0 and the min of
+#    axis 1
+#    [[34,43,73],[82,22,12],[53,94,66]]
+def ex7():
+    a = np.array([[34,43,73],[82,22,12],[53,94,66]])
+    print("Analizing numPy array:\n" + str(a))
+
+    print("Max of axis 0: " + str(a.max(axis=0)))
+    print("Min of axis 1: " + str(a.min(axis=1)))
+
+
+# 8. Given the following numPy array, delete the second column and insert the
+#    following new column in its place.
+#    [[34,43,73],[82,22,12],[53,94,66]]
+#    new_column = [10,10,10]
+def ex8():
+    a = np.array([[34, 43, 73], [82, 22, 12], [53, 94, 66]])
+    new_column = [10, 10, 10]
+
+    print("Starting numPy array:\n" + str(a))
+    print("Switching 2nd column with:\n" + str(new_column))
+
+    a = np.delete(a, 1, axis=1)
+    a = np.insert(a, 1, new_column, axis=1)
+    print("Final array:\n" + str(a))
+
+
 if __name__ == '__main__':
     a = 1
     ex = {
@@ -88,8 +115,8 @@ if __name__ == '__main__':
         "4": ex4,
         "5": ex5,
         "6": ex6,
-     #   "7": ex7,
-      #  "8": ex8
+        "7": ex7,
+        "8": ex8
     }
     hasReturn = ('3')
 
