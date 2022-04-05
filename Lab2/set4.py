@@ -31,14 +31,60 @@ def ex3():
     sd = pd.read_csv('sales_data.csv')
     plt.figure()
     months = sd['month_number'].values
-    plt.plot(months, sd['facecream'])
-    plt.plot(months, sd['facewash'])
-    plt.plot(months, sd['toothpaste'])
-    plt.plot(months, sd['bathingsoap'])
-    plt.plot(months, sd['shampoo'])
-    plt.plot(months, sd['moisturizer'])
+    plt.plot(months, sd['facecream'].values)
+    plt.plot(months, sd['facewash'].values)
+    plt.plot(months, sd['toothpaste'].values)
+    plt.plot(months, sd['bathingsoap'].values)
+    plt.plot(months, sd['shampoo'].values)
+    plt.plot(months, sd['moisturizer'].values)
     plt.xlabel('Months')
     plt.ylabel('Units')
+    plt.show()
+
+
+# 4. Read toothpaste sales data of each month and show it using a scatter plot
+def ex4():
+    sd = pd.read_csv('sales_data.csv')
+    months = sd['month_number'].values
+    plt.figure()
+    plt.scatter(months, sd['toothpaste'].values)
+    plt.xticks(months)
+    plt.show()
+
+
+# 5. Read sales data of bathing soap of all months and show it using a bar
+#    chart. Save this plot to your hard disk
+def ex5():
+    sd = pd.read_csv('sales_data.csv')
+    months = sd['month_number'].values
+    plt.figure()
+    plt.barh(months, sd['bathingsoap'].values)
+    plt.xticks(months)
+    plt.savefig('bathing_soaps.png', dpi=80)
+    plt.show()
+
+
+# 6. Read the total profit of each month and show it using the histogram to
+#    see most common profit ranges
+def ex6():
+    sd = pd.read_csv('sales_data.csv')
+    profit_range = [150e3, 175e3, 200e3, 225e3, 250e3, 300e3, 350e3]
+    plt.figure()
+    plt.hist(sd['total_profit'].values, profit_range)
+    plt.xlabel('Range')
+    plt.ylabel('Profit')
+    plt.show()
+
+
+# 7. Read Bathing soap facewash of all months and display it using the Subplot
+def ex7():
+    sd = pd.read_csv('sales_data.csv')
+    months = sd['month_number'].values
+    plt.figure()
+    plt.subplot(211)
+    plt.plot(months, sd['bathingsoap'].values)
+    plt.subplot(212)
+    plt.plot(months, sd['facewash'].values)
     plt.show()
 
 
@@ -48,10 +94,10 @@ if __name__ == '__main__':
         "1": ex1,
         "2": ex2,
         "3": ex3,
-  #      "4": ex4,
-   #     "5": ex5,
-    #    "6": ex6,
-     #   "7": ex7
+        "4": ex4,
+        "5": ex5,
+        "6": ex6,
+        "7": ex7
     }
 
     while a != "0":
