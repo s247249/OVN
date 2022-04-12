@@ -1,3 +1,7 @@
+import json
+import math
+
+
 # 1. Define the class Signal information that has the following attributes:
 #    • signal power: float
 #    • noise power: float
@@ -12,11 +16,11 @@
 #    of these quantities. Define a method to update the path once a node is
 #    crossed.
 class SignalInformation:
-    def __init__(self, signal_power, path, noise_power=0, latency=0):
+    def __init__(self, signal_power, path=list(), noise_power=0, latency=0):
         self._signal_power = float(signal_power)
         self._noise_power = float(noise_power)
         self._latency = float(latency)
-        self._path = list(path)
+        self._path = path
 
     @property
     def signal_power(self):
@@ -176,3 +180,58 @@ class Line:
         self.noise_generation(signal)
         self._successive.propagate(signal)
 
+
+# 4. Define the class Network that has the attributes:
+#    • nodes: dict[Node]
+#    • lines: dict[Lines]
+#    both the dictionaries have to contain one key for each network element
+#    that coincide with the element label. The value of each key has to be
+#    an instance of the network element (Node or Line). The constructor of
+#    this class has to read the given JSON file 'nodes.json', it has to create the
+#    instances of all the nodes and the lines. The line labels have to be the
+#    concatenation of the node labels that the line connects (for each couple of
+#    connected nodes, there would be two lines, one for each direction, e.g. for
+#    the nodes 'A' and 'B' there would be line 'AB' and 'BA'). The lengths of
+#    the lines have to be calculated as the minimum distance of the connected
+#    nodes using their positions. Define the following methods:
+#    • connect(): this function has to set the successive attributes of all
+#      the network elements as dictionaries (i.e., each node must have a dict
+#      of lines and each line must have a dictionary of a node);
+#    • find paths(string, string): given two node labels, this function re-
+#      turns all the paths that connect the two nodes as list of node labels.
+#      The admissible paths have to cross any node at most once;
+#    • propagate(signal information): this function has to propagate the
+#      signal information through the path specified in it and returns the
+#      modified spectral information;
+#    • draw(): this function has to draw the network using matplotlib
+#      (nodes as dots and connection as lines).
+class Network:
+    def __init__(self, file_name="nodes.json"):
+        rf = open(file_name, "r")
+        py_dict = json.load(rf)
+        node_dict = {}
+
+        # node creation
+        for i in py_dict:
+            node_dict['label'] = str(i)
+            node_dict['position'] = i['position'].values
+            node_dict['connected_nodes'] =  i['connected_nodes'].values
+            self._nodes[str(i)] = Node(dict(node_dict))
+
+        # line creation
+        for i in py_dict:
+            for j in i['connected_nodes'].values:
+                label = str(i)+str(j)
+                float_tuple = abs(self._nodes[str(i)].values.position + self._nodes[str(j)].values.position)
+                length = math.sqrt(float(float_tuple[0])**2 + float(float_tuple[1])**2)
+                self._lines[label] = Line(label, length)
+
+    @property
+    def nodes(self):
+        return self._nodes
+
+    @property
+    def lines(self):
+        return self._lines
+
+    def connect(self):
