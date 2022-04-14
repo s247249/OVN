@@ -66,8 +66,9 @@ class SignalInformation:
         l = self._latency + latency
         self.latency = l
 
-    def update_path(self, new_node):
-        self.path.append(new_node)
+    def update_path(self, crossing_node):
+        self.path[crossing_node].clear()
+        return self.path[0]
 
 
 # 2. Define the class Node that has the following attributes:
@@ -120,8 +121,8 @@ class Node:
         self._successive = nodes_dict
 
     def propagate(self, signal):
-        signal.update_path(self.label)
-        self.successive[self.label].propagate(signal)
+        next_node = str(signal.update_path(self.label))
+        self.successive[self.label + next_node].propagate(signal)
 
 
 # 3. Define the class Line that has the following attributes:
@@ -168,16 +169,16 @@ class Line:
         self._successive = successive
 
     def latency_generation(self, signal):
-        l = float(self._length / (3e8 * 2/3))
-        signal.update_latency(l)
+        return float(self._length / (3e8 * 2/3))
 
-    def noise_generation(self, signal):
-        n = 1e-9 * signal.signal_power * signal.length
-        signal.update_noise_power(n)
+    def noise_generation(self, signal_power):
+        return float(1e-9 * signal_power * self.length)
 
     def propagate(self, signal):
-        self.latency_generation(signal)
-        self.noise_generation(signal)
+        latency = self.latency_generation()
+        noise = self.noise_generation(signal.signal_power)
+        signal.update_latency(latency)
+        signal.update_noise_power(noise)
         self._successive.propagate(signal)
 
 
@@ -234,4 +235,50 @@ class Network:
     def lines(self):
         return self._lines
 
+    #    • connect(): this function has to set the successive attributes of all
+    #      the network elements as dictionaries (i.e., each node must have a dict
+    #      of lines and each line must have a dictionary of a node);
     def connect(self):
+        for i in self._nodes:
+            for j in self._lines:
+                chars = list(str(j))
+                if str(i) == chars[0]:
+                    i.values.successive(j.values)
+                elif str(i) == chars[1]:
+                    j.values.successive(i.values)
+
+    #    • find paths(string, string): given two node labels, this function re-
+    #      turns all the paths that connect the two nodes as list of node labels.
+    #      The admissible paths have to cross any node at most once;
+    """
+    def find_paths(self, starting_node, final_node, path_list=list()):
+        successive_dict = {}
+
+        if starting_node in path_list:
+            return 0
+        path_list.append(starting_node)
+        if starting_node == final_node:
+            return 1
+
+        for i in self._nodes:
+            if str(i) == starting_node:
+                successive_dict[str(i)] = dict(i.values.successive)
+
+        for i in successive_dict:
+            chars = list(str(i))
+            if self.find_paths(chars[1], final_node):
+                return path_list
+            else:
+                path_list.remove(starting_node)
+    """
+
+    #    • propagate(signal information): this function has to propagate the
+    #      signal information through the path specified in it and returns the
+    #      modified spectral information;
+    """
+    def propagate(self, signal_information):
+        path_list = list(signal_information.path)
+        signal_path = {}
+        for i in range(path_list):
+            if str(path_list[i]+path_list[j]) in self._lines:
+    """
