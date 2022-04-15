@@ -83,9 +83,9 @@ class SignalInformation:
 #    method, accordingly to the specified path.
 class Node:
     def __init__(self, py_dict):
-        self._label = str(py_dict['label'].values)
-        self._position = tuple(py_dict['position'].values)
-        self._connected_nodes = list(str(py_dict('connected_nodes')))
+        self._label = str(py_dict['label'])
+        self._position = tuple(py_dict['position'])
+        self._connected_nodes = list(py_dict['connected_nodes'])
         self._successive = dict()
 
     @property
@@ -100,10 +100,6 @@ class Node:
     def connected_nodes(self):
         return self._connected_nodes
 
-    @property
-    def successive(self):
-        return self._successive
-
     @label.setter
     def label(self, label):
         self._label = label
@@ -116,9 +112,8 @@ class Node:
     def connected_nodes(self, nodes):
         self._connected_nodes = nodes
 
-    @successive.setter
-    def successive(self, nodes_dict):
-        self._successive = nodes_dict
+    def set_successive(self, line):
+        self._successive[line.label] = line
 
     def propagate(self, signal):
         next_node = str(signal.update_path(self.label))
@@ -152,10 +147,6 @@ class Line:
     def length(self):
         return self._length
 
-    @property
-    def successive(self):
-        return self._successive
-
     @label.setter
     def label(self, label):
         self._label = label
@@ -164,11 +155,10 @@ class Line:
     def length(self, length):
         self._length = length
 
-    @successive.setter
-    def successive(self, successive):
-        self._successive = successive
+    def set_successive(self, node):
+        self._successive[node.label] = node
 
-    def latency_generation(self, signal):
+    def latency_generation(self):
         return float(self._length / (3e8 * 2/3))
 
     def noise_generation(self, signal_power):
@@ -208,23 +198,33 @@ class Line:
 #      (nodes as dots and connection as lines).
 class Network:
     def __init__(self, file_name="nodes.json"):
-        rf = open(file_name, "r")
-        py_dict = json.load(rf)
-        node_dict = {}
+        self._nodes = {}
+        self._lines = {}
 
+        rf = open(file_name, "r")
+        py_dict = dict(json.load(rf))
+        node_dict = {}
+        labels = list()
         # node creation
         for i in py_dict:
-            node_dict['label'] = str(i)
-            node_dict['position'] = i['position'].values
-            node_dict['connected_nodes'] =  i['connected_nodes'].values
-            self._nodes[str(i)] = Node(dict(node_dict))
+            labels.append(i)
+        cnt = 0
+        for i in py_dict.values():
+            node_dict['label'] = str(labels[cnt])
+            cnt += 1
+            node_dict['position'] = tuple(i['position'])
+            node_dict['connected_nodes'] = list(i['connected_nodes'])
+            # print(node_dict)
+            self._nodes[node_dict['label']] = Node(dict(node_dict))
 
         # line creation
-        for i in py_dict:
-            for j in i['connected_nodes'].values:
-                label = str(i)+str(j)
-                float_tuple = abs(self._nodes[str(i)].values.position + self._nodes[str(j)].values.position)
-                length = math.sqrt(float(float_tuple[0])**2 + float(float_tuple[1])**2)
+        for i in self._nodes.values():
+            for j in i.connected_nodes:
+                label = str(i.label)+str(j)
+                x = abs(i.position[0] - self._nodes[j].position[0])
+                y = abs(i.position[1] - self._nodes[j].position[1])
+                float_tuple = (x, y)
+                length = math.sqrt(float_tuple[0]**2 + float_tuple[1]**2)
                 self._lines[label] = Line(label, length)
 
     @property
@@ -239,38 +239,47 @@ class Network:
     #      the network elements as dictionaries (i.e., each node must have a dict
     #      of lines and each line must have a dictionary of a node);
     def connect(self):
-        for i in self._nodes:
-            for j in self._lines:
-                chars = list(str(j))
-                if str(i) == chars[0]:
-                    i.values.successive(j.values)
-                elif str(i) == chars[1]:
-                    j.values.successive(i.values)
+        for i in self.nodes.values():
+            for j in self.lines.values():
+                chars = list(str(j.label))
+                if str(i.label) == chars[0]:
+                    i.set_successive(j)
+                elif str(i.label) == chars[1]:
+                    j.set_successive(i)
 
     #    • find paths(string, string): given two node labels, this function re-
     #      turns all the paths that connect the two nodes as list of node labels.
     #      The admissible paths have to cross any node at most once;
-    """
-    def find_paths(self, starting_node, final_node, path_list=list()):
-        successive_dict = {}
+    def recursive_find_paths(self, current_node, final_node, wip_path, path_list):
+        path_str = ""
 
-        if starting_node in path_list:
-            return 0
-        path_list.append(starting_node)
-        if starting_node == final_node:
-            return 1
-
-        for i in self._nodes:
-            if str(i) == starting_node:
-                successive_dict[str(i)] = dict(i.values.successive)
-
-        for i in successive_dict:
-            chars = list(str(i))
-            if self.find_paths(chars[1], final_node):
-                return path_list
+        if current_node == final_node:
+            for i in range(len(wip_path)):
+                path_str += str(wip_path[i])
+            if path_str not in path_list:
+                path_list.append(path_str)
             else:
-                path_list.remove(starting_node)
-    """
+                return
+
+        for i in self.nodes.keys():
+            if len(wip_path) == 0:
+                return
+            if i not in wip_path:
+                if i in self.nodes[current_node].connected_nodes:
+                    wip_path.append(i)
+                    self.recursive_find_paths(i, final_node, wip_path, path_list)
+                    wip_path.pop(-1)
+
+    def find_paths(self, starting_node, final_node):
+        nodes_dict = dict(self.nodes)
+        del nodes_dict[starting_node]
+
+        self.connect()
+
+        path_list = list(str())
+        wip_path = ['A']
+        self.recursive_find_paths(starting_node, final_node, wip_path, path_list)
+        return path_list
 
     #    • propagate(signal information): this function has to propagate the
     #      signal information through the path specified in it and returns the
@@ -282,3 +291,10 @@ class Network:
         for i in range(path_list):
             if str(path_list[i]+path_list[j]) in self._lines:
     """
+
+
+if __name__ == '__main__':
+    N = Network()
+
+    path_list = N.find_paths('A', 'D')
+    print(path_list)
