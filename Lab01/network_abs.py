@@ -56,19 +56,22 @@ class SignalInformation:
 
     def update_signal_power(self, signal_power):
         sp = self._signal_power + signal_power
-        self.signal_power = sp
+        self.signal_power += sp
 
     def update_noise_power(self, noise_power):
         np = self._noise_power + noise_power
-        self.noise_power = np
+        self.noise_power += np
 
     def update_latency(self, latency):
         l = self._latency + latency
-        self.latency = l
+        self.latency += l
 
-    def update_path(self, crossing_node):
-        self.path[crossing_node].clear()
-        return self.path[0]
+    def update_path(self):
+        del self.path[0]
+        if len(self.path) > 0:
+            return self.path[0]
+        else:
+            return 0
 
 
 # 2. Define the class Node that has the following attributes:
@@ -100,6 +103,10 @@ class Node:
     def connected_nodes(self):
         return self._connected_nodes
 
+    @property
+    def successive(self):
+        return self._successive
+
     @label.setter
     def label(self, label):
         self._label = label
@@ -116,8 +123,9 @@ class Node:
         self._successive[line.label] = line
 
     def propagate(self, signal):
-        next_node = str(signal.update_path(self.label))
-        self.successive[self.label + next_node].propagate(signal)
+        next_node = str(signal.update_path())
+        if next_node != "0":
+            self.successive[self.label + next_node].propagate(signal)
 
 
 # 3. Define the class Line that has the following attributes:
@@ -147,6 +155,10 @@ class Line:
     def length(self):
         return self._length
 
+    @property
+    def successive(self):
+        return self._successive
+
     @label.setter
     def label(self, label):
         self._label = label
@@ -169,7 +181,8 @@ class Line:
         noise = self.noise_generation(signal.signal_power)
         signal.update_latency(latency)
         signal.update_noise_power(noise)
-        self._successive.propagate(signal)
+        for i in self.successive.values():
+            i.propagate(signal)
 
 
 # 4. Define the class Network that has the attributes:
@@ -284,17 +297,36 @@ class Network:
     #    • propagate(signal information): this function has to propagate the
     #      signal information through the path specified in it and returns the
     #      modified spectral information;
-    """
     def propagate(self, signal_information):
-        path_list = list(signal_information.path)
-        signal_path = {}
-        for i in range(path_list):
-            if str(path_list[i]+path_list[j]) in self._lines:
-    """
+        spectral_info = {}
+        first_node = str(signal_information.path[0])
+        self.nodes[first_node].propagate(signal_information)
+
+        spectral_info['signal_power'] = signal_information.signal_power
+        spectral_info['noise_power'] = signal_information.noise_power
+        spectral_info['latency'] = signal_information.latency
+        return spectral_info
+
+    #    • draw(): this function has to draw the network using matplotlib
+    #      (nodes as dots and connection as lines).
+    def draw(self):
+
 
 
 if __name__ == '__main__':
     N = Network()
 
     path_list = N.find_paths('A', 'D')
+
+    print("\nPossible paths from node A to node D: ")
     print(path_list)
+
+    ind = int(input("\nType in the index of the desired path to take: "))
+    sp = int(input("Type in the desired signal power: "))
+    desired_path = list(str(path_list[ind]))
+    signal = SignalInformation(sp)
+    signal.path = desired_path
+    spectral_info = N.propagate(signal)
+
+    print("\nPath " + str(path_list[1]) + " has the following spectral information: ")
+    print(spectral_info)
