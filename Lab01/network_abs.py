@@ -1,5 +1,6 @@
 import json
 import math
+import matplotlib.pyplot as plt
 
 
 # 1. Define the class Signal information that has the following attributes:
@@ -310,7 +311,26 @@ class Network:
     #    • draw(): this function has to draw the network using matplotlib
     #      (nodes as dots and connection as lines).
     def draw(self):
+        connections = {}
+        i_coords = list()
+        j_coords = list()
+        x_coords = tuple()
+        y_coords = tuple()
 
+        for i in self.nodes.values():
+            connections[i.label] = i.connected_nodes
+
+        # WIP
+        plt.figure()
+        for i in connections.keys():
+            for j in connections.keys():
+                if str(j) in connections[i]:
+                    i_coords = list(self.nodes[i].position)
+                    j_coords = list(self.nodes[j].position)
+                    x_coords = (float(i_coords[0]), float(j_coords[0]))
+                    y_coords = (float(i_coords[1]), float(j_coords[1]))
+                    plt.plot(x_coords, y_coords, color='#00cc00', marker='o', markerfacecolor='k', linestyle='-')
+        plt.show()
 
 
 if __name__ == '__main__':
@@ -321,6 +341,8 @@ if __name__ == '__main__':
     print("\nPossible paths from node A to node D: ")
     print(path_list)
 
+    """
+    # Path's spectral information printer
     ind = int(input("\nType in the index of the desired path to take: "))
     sp = int(input("Type in the desired signal power: "))
     desired_path = list(str(path_list[ind]))
@@ -330,3 +352,6 @@ if __name__ == '__main__':
 
     print("\nPath " + str(path_list[1]) + " has the following spectral information: ")
     print(spectral_info)
+    """
+
+    N.draw()

@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 # 1. Read Total profit of all months and show it using a line plot
 def ex1():
     sd = pd.read_csv('sales_data.csv')
