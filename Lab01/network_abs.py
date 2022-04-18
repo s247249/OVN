@@ -229,7 +229,6 @@ class Network:
             cnt += 1
             node_dict['position'] = tuple(i['position'])
             node_dict['connected_nodes'] = list(i['connected_nodes'])
-            # print(node_dict)
             self._nodes[node_dict['label']] = Node(dict(node_dict))
 
         # line creation
@@ -321,7 +320,6 @@ class Network:
         for i in self.nodes.values():
             connections[i.label] = i.connected_nodes
 
-        # WIP
         plt.figure()
         for i in connections.keys():
             for j in connections.keys():
@@ -350,31 +348,7 @@ if __name__ == '__main__':
     sig_pow = 0.001
     pandas_dict = {}
 
-    # tests
-    """
-    path_list = N.find_paths('A', 'D')
-    
-    print("\nPossible paths from node A to node D: ")
-    print(path_list)
-
-    # Path's spectral information printer
-    ind = int(input("\nType in the index of the desired path to take: "))
-    sp = int(input("Type in the desired signal power: "))
-    desired_path = list(str(path_list[ind]))
-    signal = SignalInformation(sp)
-    signal.path = desired_path
-    spectral_info = N.propagate(signal)
-
-    print("\nPath " + str(path_list[1]) + " has the following spectral information: ")
-    print(spectral_info)
-
-    N.draw()
-    """
-
-    # route path    latency     noise   snr
-    # a b   ab      number      number  number
-    # a b   acb
-    # a c   ac
+    # N.draw()
 
     nodes = N.nodes.keys()
     for i in nodes:
