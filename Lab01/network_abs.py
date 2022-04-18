@@ -1,6 +1,7 @@
 import json
 import math
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 # 1. Define the class Signal information that has the following attributes:
@@ -291,7 +292,7 @@ class Network:
         self.connect()
 
         path_list = list(str())
-        wip_path = ['A']
+        wip_path = [starting_node]
         self.recursive_find_paths(starting_node, final_node, wip_path, path_list)
         return path_list
 
@@ -333,15 +334,29 @@ class Network:
         plt.show()
 
 
+# 5. For all possible paths between all possible node couples, create a pandas
+#    dataframe that contains the path string as "A->B-> ...", the total accu-
+#    mulated latency, the total accumulated noise and the signal to noise ratio
+#    obtained with the propagation through the paths of a spectral information
+#    with a signal power of 1 mW. Calculate the signal to noise ratio in dB us-
+#    ing the formula 10 log(signal power/noise power)
+#    Additional Notes: All power values have to be considered in Watts, all
+#    lengths in meters and all latencies in seconds.
+
 if __name__ == '__main__':
     N = Network()
+    nodes = list()
+    path_dict = {}
+    sig_pow = 0.001
+    pandas_dict = {}
 
+    # tests
+    """
     path_list = N.find_paths('A', 'D')
-
+    
     print("\nPossible paths from node A to node D: ")
     print(path_list)
 
-    """
     # Path's spectral information printer
     ind = int(input("\nType in the index of the desired path to take: "))
     sp = int(input("Type in the desired signal power: "))
@@ -352,6 +367,54 @@ if __name__ == '__main__':
 
     print("\nPath " + str(path_list[1]) + " has the following spectral information: ")
     print(spectral_info)
-    """
 
     N.draw()
+    """
+
+    # route path    latency     noise   snr
+    # a b   ab      number      number  number
+    # a b   acb
+    # a c   ac
+
+    nodes = N.nodes.keys()
+    for i in nodes:
+        for j in nodes:
+            if i != j:
+                path_dict[i + "->" + j] = N.find_paths(i, j)
+
+    pandas_dict['Routes'] = list()
+    pandas_dict['Path'] = list()
+    pandas_dict['signal_power'] = list()
+    pandas_dict['noise_power'] = list()
+    pandas_dict['latency'] = list()
+    pandas_dict['SNR'] = list()
+
+    for i in path_dict.keys():
+        for j in path_dict[i]:
+            pandas_dict['Routes'].append(i)
+            pandas_dict['Path'].append(j)
+
+            signal = SignalInformation(sig_pow)
+            signal.path = list(str(j))
+            spectral_info = N.propagate(signal)
+            for k in spectral_info.keys():
+                pandas_dict[k].append(spectral_info[k])
+
+            SNR = 10 * math.log(spectral_info['signal_power']/spectral_info['noise_power'], 10)
+            pandas_dict['SNR'].append(SNR)
+
+    pandas_dict['signal_power (W)'] = list(pandas_dict['signal_power'])
+    pandas_dict['noise_power (W)'] = list(pandas_dict['noise_power'])
+    pandas_dict['latency (s)'] = list(pandas_dict['latency'])
+    pandas_dict['SNR (dB)'] = list(pandas_dict['SNR'])
+    del pandas_dict['signal_power']
+    del pandas_dict['noise_power']
+    del pandas_dict['latency']
+    del pandas_dict['SNR']
+
+    df = pd.DataFrame(pandas_dict)
+    df.to_csv("Network.csv")
+    print(df)
+
+
+
