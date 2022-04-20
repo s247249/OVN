@@ -381,9 +381,9 @@ if __name__ == '__main__':
             SNR = 10 * math.log(spectral_info['signal_power']/spectral_info['noise_power'], 10)
             pandas_dict['SNR'].append(SNR)
 
-    pandas_dict['signal_power (W)'] = list(pandas_dict['signal_power'])
-    pandas_dict['noise_power (W)'] = list(pandas_dict['noise_power'])
-    pandas_dict['latency (s)'] = list(pandas_dict['latency'])
+    pandas_dict['Signal_power (W)'] = list(pandas_dict['signal_power'])
+    pandas_dict['Noise_power (W)'] = list(pandas_dict['noise_power'])
+    pandas_dict['Latency (s)'] = list(pandas_dict['latency'])
     pandas_dict['SNR (dB)'] = list(pandas_dict['SNR'])
     del pandas_dict['signal_power']
     del pandas_dict['noise_power']

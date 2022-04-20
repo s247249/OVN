@@ -265,6 +265,10 @@ class Network:
                     x_coords = (float(i_coords[0]), float(j_coords[0]))
                     y_coords = (float(i_coords[1]), float(j_coords[1]))
                     plt.plot(x_coords, y_coords, color='#00cc00', marker='o', markerfacecolor='k', linestyle='-')
+
+        for i in self.nodes.values():
+            plt.annotate(i.label, i.position, fontsize=15)
+
         plt.show()
 
     # 2. Define a method find best snr() in the class Network that, given a
@@ -273,7 +277,6 @@ class Network:
     #    propagation.
     def find_best_snr(self, in_node, out_node):
         best_snr = 0
-        start = -1
         cnt = 0
 
         for i in self.weighted_paths['Routes']:
@@ -286,9 +289,32 @@ class Network:
 
         return best_path
 
+    # 3. Define a method find best latency() in the class Network that, given
+    #    a pair of input and output nodes, returns the path that connects the two
+    #    nodes with the best (lowest) latency introduced by the signal propagation.
+    def find_best_latency(self, in_node, out_node):
+        best_lat = -1
+        cnt = 0
+
+        for i in self.weighted_paths['Routes']:
+
+            if i == str(in_node + "->" + out_node):
+                if self.weighted_paths['Latency (s)'][cnt] < best_lat or best_lat == -1:
+                    best_snr = self.weighted_paths['SNR (dB)'][cnt]
+                    best_path = self.weighted_paths['Path'][cnt]
+            cnt += 1
+
+        return best_path
+
 
 if __name__ == '__main__':
     N = Network()
-    path = N.find_best_snr('A', 'E')
-    print(path)
+    n1 = 'B'
+    n2 = 'C'
+    snr_path = N.find_best_snr(n1, n2)
+    latency_path = N.find_best_latency(n1, n2)
+    print("Path from %s to %s with the best SNR: %s" % (n1, n2, snr_path))
+    print("Path from %s to %s with the best latency: %s" % (n1, n2, latency_path))
+
+    # N.draw()
 
