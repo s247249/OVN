@@ -299,22 +299,44 @@ class Network:
         for i in self.weighted_paths['Routes']:
 
             if i == str(in_node + "->" + out_node):
-                if self.weighted_paths['Latency (s)'][cnt] < best_lat or best_lat == -1:
-                    best_snr = self.weighted_paths['SNR (dB)'][cnt]
+                if (self.weighted_paths['Latency (s)'][cnt] < best_lat) or (best_lat == -1):
+                    best_lat = self.weighted_paths['Latency (s)'][cnt]
                     best_path = self.weighted_paths['Path'][cnt]
             cnt += 1
 
         return best_path
 
 
+# 4. Define the class Connection that has the attributes:
+#    • input: string
+#    • output: string
+#    • signal power: float
+#    • latency: float
+#    • snr: float
+#    The attributes latency and snr have to be initialized to zero.
+class Connection:
+    def __init__(self, input, output, signal_power):
+        self._input = str(input)
+        self._output = str(output)
+        self._signal_power = float(signal_power)
+        self._latency = float(0)
+        self._snr = float(0)
+
+
 if __name__ == '__main__':
     N = Network()
+
+    # Testing 1, 2 and 3
     n1 = 'B'
     n2 = 'C'
     snr_path = N.find_best_snr(n1, n2)
     latency_path = N.find_best_latency(n1, n2)
     print("Path from %s to %s with the best SNR: %s" % (n1, n2, snr_path))
     print("Path from %s to %s with the best latency: %s" % (n1, n2, latency_path))
+
+    # Testing 3
+    C = Connection('A', 'B', 3.5)
+    print(C._input)
 
     # N.draw()
 
