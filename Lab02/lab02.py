@@ -4,19 +4,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-# 1. Define the class Signal information that has the following attributes:
-#    • signal power: float
-#    • noise power: float
-#    • latency: float
-#    • path: list[string]
-#    such that its constructor initializes the signal power to a given value, the
-#    noise power and the latency to zero and the path as a given list of letters
-#    that represents the labels of the nodes the signal has to travel through. The
-#    attribute latency is the total time delay due to the signal propagation
-#    through any network element along the path. Define the methods to
-#    update the signal and noise powers and the latency given an increment
-#    of these quantities. Define a method to update the path once a node is
-#    crossed.
 class SignalInformation:
     def __init__(self, signal_power, path=list(), noise_power=0, latency=0):
         self._signal_power = float(signal_power)
@@ -76,16 +63,6 @@ class SignalInformation:
             return 0
 
 
-# 2. Define the class Node that has the following attributes:
-#    • label: string
-#    • position: tuple(float, float)
-#    • connected nodes: list[string]
-#    • successive: dict[Line]
-#    such that its constructor initializes these values from a python dictionary
-#    input. The attribute successive has to be initialized to an empty dictio-
-#    nary. Define a propagate method that update a signal information object
-#    modifying its path attribute and call the successive element propagate
-#    method, accordingly to the specified path.
 class Node:
     def __init__(self, py_dict):
         self._label = str(py_dict['label'])
@@ -130,19 +107,6 @@ class Node:
             self.successive[self.label + next_node].propagate(signal)
 
 
-# 3. Define the class Line that has the following attributes:
-#    • label: string
-#    • length: float
-#    • successive: dict[Node]
-#    The attribute successive has to be initialized to an empty dict. Define the
-#    following methods that update an instance of the signal information:
-#    • latency generation(): float
-#    • noise generation(signal power): 1e-9 * signal power * length
-#    The light travels through the fiber at around 2/3 of the speed of light
-#    in the vacuum. Define the line method latency generation accordingly.
-#    Define a propagate method that updates the signal information modifying
-#    its noise power and its latency and call the successive element propagate
-#    method, accordingly to the specified path.
 class Line:
     def __init__(self, label, length):
         self._label = label
@@ -187,34 +151,13 @@ class Line:
             i.propagate(signal)
 
 
-# 4. Define the class Network that has the attributes:
-#    • nodes: dict[Node]
-#    • lines: dict[Lines]
-#    both the dictionaries have to contain one key for each network element
-#    that coincide with the element label. The value of each key has to be
-#    an instance of the network element (Node or Line). The constructor of
-#    this class has to read the given JSON file 'nodes.json', it has to create the
-#    instances of all the nodes and the lines. The line labels have to be the
-#    concatenation of the node labels that the line connects (for each couple of
-#    connected nodes, there would be two lines, one for each direction, e.g. for
-#    the nodes 'A' and 'B' there would be line 'AB' and 'BA'). The lengths of
-#    the lines have to be calculated as the minimum distance of the connected
-#    nodes using their positions. Define the following methods:
-#    • connect(): this function has to set the successive attributes of all
-#      the network elements as dictionaries (i.e., each node must have a dict
-#      of lines and each line must have a dictionary of a node);
-#    • find paths(string, string): given two node labels, this function re-
-#      turns all the paths that connect the two nodes as list of node labels.
-#      The admissible paths have to cross any node at most once;
-#    • propagate(signal information): this function has to propagate the
-#      signal information through the path specified in it and returns the
-#      modified spectral information;
-#    • draw(): this function has to draw the network using matplotlib
-#      (nodes as dots and connection as lines).
 class Network:
-    def __init__(self, file_name="nodes.json"):
+    def __init__(self, file_name="../Lab01/nodes.json"):
         self._nodes = {}
         self._lines = {}
+        # 1. Set the dataframe constructed in exercise 5 of Lab 3 as an attribute of the
+        #    network called 'weighted paths'.
+        self._weighted_paths = pd.read_csv("../Lab01/Network.csv")
 
         rf = open(file_name, "r")
         py_dict = dict(json.load(rf))
@@ -249,9 +192,10 @@ class Network:
     def lines(self):
         return self._lines
 
-    #    • connect(): this function has to set the successive attributes of all
-    #      the network elements as dictionaries (i.e., each node must have a dict
-    #      of lines and each line must have a dictionary of a node);
+    @property
+    def weighted_paths(self):
+        return self._weighted_paths
+
     def connect(self):
         for i in self.nodes.values():
             for j in self.lines.values():
@@ -261,9 +205,6 @@ class Network:
                 elif str(i.label) == chars[1]:
                     j.set_successive(i)
 
-    #    • find paths(string, string): given two node labels, this function re-
-    #      turns all the paths that connect the two nodes as list of node labels.
-    #      The admissible paths have to cross any node at most once;
     def recursive_find_paths(self, current_node, final_node, wip_path, path_list):
         path_str = ""
 
@@ -295,9 +236,6 @@ class Network:
         self.recursive_find_paths(starting_node, final_node, wip_path, path_list)
         return path_list
 
-    #    • propagate(signal information): this function has to propagate the
-    #      signal information through the path specified in it and returns the
-    #      modified spectral information;
     def propagate(self, signal_information):
         spectral_info = {}
         first_node = str(signal_information.path[0])
@@ -308,8 +246,6 @@ class Network:
         spectral_info['latency'] = signal_information.latency
         return spectral_info
 
-    #    • draw(): this function has to draw the network using matplotlib
-    #      (nodes as dots and connection as lines).
     def draw(self):
         connections = {}
         i_coords = list()
@@ -329,70 +265,30 @@ class Network:
                     x_coords = (float(i_coords[0]), float(j_coords[0]))
                     y_coords = (float(i_coords[1]), float(j_coords[1]))
                     plt.plot(x_coords, y_coords, color='#00cc00', marker='o', markerfacecolor='k', linestyle='-')
-
-        for i in self.nodes.values():
-            plt.annotate(i.label, i.position, fontsize=15)
-
         plt.show()
 
+    # 2. Define a method find best snr() in the class Network that, given a
+    #    pair of input and output nodes, returns the path that connects the two
+    #    nodes with the best (highest) signal to noise ratio introduced by the signal
+    #    propagation.
+    def find_best_snr(self, in_node, out_node):
+        best_snr = 0
+        start = -1
+        cnt = 0
 
-# 5. For all possible paths between all possible node couples, create a pandas
-#    dataframe that contains the path string as "A->B-> ...", the total accu-
-#    mulated latency, the total accumulated noise and the signal to noise ratio
-#    obtained with the propagation through the paths of a spectral information
-#    with a signal power of 1 mW. Calculate the signal to noise ratio in dB us-
-#    ing the formula 10 log(signal power/noise power)
-#    Additional Notes: All power values have to be considered in Watts, all
-#    lengths in meters and all latencies in seconds.
+        for i in self.weighted_paths['Routes']:
+
+            if i == str(in_node + "->" + out_node):
+                if self.weighted_paths['SNR (dB)'][cnt] > best_snr:
+                    best_snr = self.weighted_paths['SNR (dB)'][cnt]
+                    best_path = self.weighted_paths['Path'][cnt]
+            cnt += 1
+
+        return best_path
+
 
 if __name__ == '__main__':
     N = Network()
-    nodes = list()
-    path_dict = {}
-    sig_pow = 0.001
-    pandas_dict = {}
-
-    N.draw()
-
-    nodes = N.nodes.keys()
-    for i in nodes:
-        for j in nodes:
-            if i != j:
-                path_dict[i + "->" + j] = N.find_paths(i, j)
-
-    pandas_dict['Routes'] = list()
-    pandas_dict['Path'] = list()
-    pandas_dict['signal_power'] = list()
-    pandas_dict['noise_power'] = list()
-    pandas_dict['latency'] = list()
-    pandas_dict['SNR'] = list()
-
-    for i in path_dict.keys():
-        for j in path_dict[i]:
-            pandas_dict['Routes'].append(i)
-            pandas_dict['Path'].append(j)
-
-            signal = SignalInformation(sig_pow)
-            signal.path = list(str(j))
-            spectral_info = N.propagate(signal)
-            for k in spectral_info.keys():
-                pandas_dict[k].append(spectral_info[k])
-
-            SNR = 10 * math.log(spectral_info['signal_power']/spectral_info['noise_power'], 10)
-            pandas_dict['SNR'].append(SNR)
-
-    pandas_dict['signal_power (W)'] = list(pandas_dict['signal_power'])
-    pandas_dict['noise_power (W)'] = list(pandas_dict['noise_power'])
-    pandas_dict['latency (s)'] = list(pandas_dict['latency'])
-    pandas_dict['SNR (dB)'] = list(pandas_dict['SNR'])
-    del pandas_dict['signal_power']
-    del pandas_dict['noise_power']
-    del pandas_dict['latency']
-    del pandas_dict['SNR']
-
-    df = pd.DataFrame(pandas_dict)
-    df.to_csv("Network.csv")
-    print(df)
-
-
+    path = N.find_best_snr('A', 'E')
+    print(path)
 
