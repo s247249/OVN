@@ -453,8 +453,11 @@ if __name__ == '__main__':
         connections.append(Connection(i[0], i[1], power))
 
     N.stream(connections)
+
+    #freeing lines
     for i in N.lines.values():
         i.state = 1
+
     for i in connections:
         print("\nConnection: " + str(i.input + "->" + i.output), end='')
 
@@ -462,26 +465,39 @@ if __name__ == '__main__':
         used_path = 'None'
         if i.snr != 0:
             used_path = N.find_best_latency(i.input, i.output)
+            used_path_list = list(used_path)
+            for j in range(0, len(used_path_list) - 1):
+                N.lines[used_path_list[j]+used_path_list[j+1]].state = 0
 
         print("\tBest available latency path: " + used_path)
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
+
+    # freeing lines because of the print aesthetics code
+    for i in N.lines.values():
+        i.state = 1
 
     # finding paths based on best snr:
     for i in node_list:
         connections.append(Connection(i[0], i[1], power))
 
     N.stream(connections, 'snr')
+
+    # freeing lines
     for i in N.lines.values():
         i.state = 1
+
     for i in connections:
         print("\nConnection: " + str(i.input + "->" + i.output), end='')
 
         # just for print aesthetics
         used_path = 'None'
         if i.snr != 0:
-            used_path = N.find_best_snr(i.input, i.output)
+            used_path = N.find_best_latency(i.input, i.output)
+            used_path_list = list(used_path)
+            for j in range(0, len(used_path_list) - 1):
+                N.lines[used_path_list[j] + used_path_list[j + 1]].state = 0
+        print("\tBest available SNR path found: " + used_path
 
-        print("\tBest available SNR path found: " + used_path)
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
