@@ -65,8 +65,7 @@ class SignalInformation:
         self.noise_power += np
 
     def update_latency(self, latency):
-        l = self._latency + latency
-        self.latency += l
+        self.latency += latency
 
     def update_path(self):
         del self.path[0]

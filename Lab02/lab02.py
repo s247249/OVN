@@ -53,8 +53,7 @@ class SignalInformation:
         self.noise_power += np
 
     def update_latency(self, latency):
-        l = self._latency + latency
-        self.latency += l
+        self.latency += latency
 
     def update_path(self):
         del self.path[0]
@@ -108,11 +107,22 @@ class Node:
             self.successive[self.label + next_node].propagate(signal)
 
 
+# 7. Modify the class Line such that it includes an attribute state that can
+#    assume the values 1 or 0, standing for 'free' or 'occupied', respectively
+#    (initialize it as 'free'). This attribute shows if a connection is already
+#    occupying that line. Modify accordingly the find_best_latency() and
+#    find best snr() methods that have to return the best available path,
+#    meaning that all the lines within the path have to be 'free'. Moreover,
+#    modify the stream network method such that, if there are not any avail-
+#    able path between the input and the output nodes of a connection, the
+#    resulting snr and latency have to be set to zero and 'None', respectively.
+#    Run again the main of the previous exercise with the snr path choice.
 class Line:
     def __init__(self, label, length):
         self._label = label
         self._length = length
         self._successive = dict()
+        self._state = bool(1)
 
     @property
     def label(self):
@@ -126,6 +136,10 @@ class Line:
     def successive(self):
         return self._successive
 
+    @property
+    def state(self):
+        return self._state
+
     @label.setter
     def label(self, label):
         self._label = label
@@ -133,6 +147,10 @@ class Line:
     @length.setter
     def length(self, length):
         self._length = length
+
+    @state.setter
+    def state(self, state):
+        self._state = state
 
     def set_successive(self, node):
         self._successive[node.label] = node
@@ -279,13 +297,27 @@ class Network:
     def find_best_snr(self, in_node, out_node):
         best_snr = 0
         cnt = 0
+        best_path = ''
+        flag = 0
 
         for i in self.weighted_paths['Routes']:
-
             if i == str(in_node + "->" + out_node):
+
+                # free lines check
+                path = list(self.weighted_paths['Path'][cnt])
+                for j in range(0, len(path) - 1):
+                    if self.lines[path[j] + path[j + 1]].state == 0:
+                        flag = 1
+                        break
+                if flag:
+                    cnt += 1
+                    flag = 0
+                    continue
+
                 if self.weighted_paths['SNR (dB)'][cnt] > best_snr:
                     best_snr = self.weighted_paths['SNR (dB)'][cnt]
                     best_path = self.weighted_paths['Path'][cnt]
+
             cnt += 1
 
         return best_path
@@ -296,14 +328,27 @@ class Network:
     def find_best_latency(self, in_node, out_node):
         best_lat = -1
         cnt = 0
+        best_path = ''
+        flag = 0
 
         for i in self.weighted_paths['Routes']:
-
             if i == str(in_node + "->" + out_node):
+                # free lines check
+                path = list(self.weighted_paths['Path'][cnt])
+                for j in range(0, len(path) - 1):
+                    if self.lines[path[j] + path[j+1]].state == 0:
+                        flag = 1
+                        break
+                if flag:
+                    cnt += 1
+                    flag = 0
+                    continue
+
                 if (self.weighted_paths['Latency (s)'][cnt] < best_lat) or (best_lat == -1):
                     best_lat = self.weighted_paths['Latency (s)'][cnt]
                     best_path = self.weighted_paths['Path'][cnt]
-            cnt += 1
+
+                cnt += 1
 
         return best_path
 
@@ -325,10 +370,18 @@ class Network:
                 print("wrong argument for 'latency_or_snr'\nWrite either 'latency' or 'snr'")
 
             s = SignalInformation(i.signal_power)
-            s.path = list(p)
-            self.propagate(s)
-            i.latency = s.latency
-            i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
+            if p == '':
+                i.latency = None
+                i.snr = 0
+            else:
+                # occupy lines
+                for j in range(0, len(p) - 1):
+                    self.lines[p[j] + p[j+1]].state = 0
+
+                s.path = list(p)
+                self.propagate(s)
+                i.latency = s.latency
+                i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
 
 
 # 4. Define the class Connection that has the attributes:
@@ -393,7 +446,6 @@ if __name__ == '__main__':
     power = 0.001
     for i in range(100):
         node_list.append(random.sample(nodes, 2))
-    print(node_list)
 
     # finding paths based on best latency:
     for i in node_list:
@@ -402,7 +454,19 @@ if __name__ == '__main__':
     N.stream(connections)
     for i in connections:
         print("\nConnection: " + str(i.input + "->" + i.output), end='')
-        print("\tBest latency path: " + str(N.find_best_latency(i.input, i.output)))
+
+        # just for print aesthetics
+        used_path = 'None'
+        if i.snr != 0:
+            cnt = 0
+            for j in N.weighted_paths['Routes']:
+                if j == str(i.input + "->" + i.output):
+                    print(str(N.weighted_paths['Latency (s)'][cnt]) + " " + str(i.latency))
+                    if N.weighted_paths['Latency (s)'][cnt] == i.latency:
+                        used_path = N.weighted_paths['Path'][cnt]
+                cnt += 1
+
+        print("\tBest latency path: " + used_path)
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
 
@@ -413,9 +477,17 @@ if __name__ == '__main__':
     N.stream(connections, 'snr')
     for i in connections:
         print("\nConnection: " + str(i.input + "->" + i.output), end='')
-        print("\tBest SNR path: " + str(N.find_best_latency(i.input, i.output)))
+
+        # just for print aesthetics
+        used_path = 'None'
+        if i.snr != 0:
+            cnt = 0
+            for j in N.weighted_paths['Routes']:
+                if j == str(i.input + "->" + i.output):
+                    if N.weighted_paths['SNR (dB)'][cnt] == i.snr:
+                        used_path = N.weighted_paths['Path'][cnt]
+                cnt += 1
+
+        print("\tBest SNR path found: " + used_path)
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
-
-
-
