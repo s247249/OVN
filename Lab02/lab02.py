@@ -2,6 +2,7 @@ import json
 import math
 import matplotlib.pyplot as plt
 import pandas as pd
+import random
 
 
 class SignalInformation:
@@ -306,6 +307,29 @@ class Network:
 
         return best_path
 
+    # 5. Define the method stream in the class Network that, for each element
+    #    of a given list of instances of the class Connection, sets its latency
+    #    and snr attribute. These values have to be calculated propagating a
+    #    SignalInformation instance that has the path that connects the input
+    #    and the output nodes of the connection and that is the best snr or latency
+    #    path between the considered nodes. The choice of latency or snr has to
+    #    be made with a label passed as input to the stream function. The label
+    #    default value has to be set as latency.
+    def stream(self, connections, latency_or_snr = 'latency'):
+        for i in connections:
+            if latency_or_snr == 'latency':
+                p = self.find_best_latency(i.input, i.output)
+            elif latency_or_snr == 'snr':
+                p = self.find_best_snr(i.input, i.output)
+            else:
+                print("wrong argument for 'latency_or_snr'\nWrite either 'latency' or 'snr'")
+
+            s = SignalInformation(i.signal_power)
+            s.path = list(p)
+            self.propagate(s)
+            i.latency = s.latency
+            i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
+
 
 # 4. Define the class Connection that has the attributes:
 #    • input: string
@@ -322,21 +346,76 @@ class Connection:
         self._latency = float(0)
         self._snr = float(0)
 
+    @property
+    def input(self):
+        return self._input
 
+    @property
+    def output(self):
+        return self._output
+
+    @property
+    def signal_power(self):
+        return self._signal_power
+
+    @property
+    def latency(self):
+        return self._latency
+
+    @property
+    def snr(self):
+        return self._snr
+
+    @latency.setter
+    def latency(self, latency):
+        self._latency = latency
+
+    @snr.setter
+    def snr(self, snr):
+        self._snr = snr
+
+
+# 6. Create a main that constructs the network defined by 'nodes.json' and
+#    runs its method stream over 100 connections with signal power equal
+#    to 1 mW and the input and output nodes randomly chosen. This run has
+#    to be performed in turn for latency and snr path choice. Accordingly, plot
+#    the distribution of all the latencies or the snrs.
 if __name__ == '__main__':
     N = Network()
-
-    # Testing 1, 2 and 3
-    n1 = 'B'
-    n2 = 'C'
-    snr_path = N.find_best_snr(n1, n2)
-    latency_path = N.find_best_latency(n1, n2)
-    print("Path from %s to %s with the best SNR: %s" % (n1, n2, snr_path))
-    print("Path from %s to %s with the best latency: %s" % (n1, n2, latency_path))
-
-    # Testing 3
-    C = Connection('A', 'B', 3.5)
-    print(C._input)
+    N.connect()
 
     # N.draw()
+
+    nodes = N.nodes.keys()
+    node_list = list()
+    connections = list()
+
+    power = 0.001
+    for i in range(100):
+        node_list.append(random.sample(nodes, 2))
+    print(node_list)
+
+    # finding paths based on best latency:
+    for i in node_list:
+        connections.append(Connection(i[0], i[1], power))
+
+    N.stream(connections)
+    for i in connections:
+        print("\nConnection: " + str(i.input + "->" + i.output), end='')
+        print("\tBest latency path: " + str(N.find_best_latency(i.input, i.output)))
+        print("Latency: " + str(i.latency), end='')
+        print("\tSNR: " + str(i.snr))
+
+    # finding paths based on best snr:
+    for i in node_list:
+        connections.append(Connection(i[0], i[1], power))
+
+    N.stream(connections, 'snr')
+    for i in connections:
+        print("\nConnection: " + str(i.input + "->" + i.output), end='')
+        print("\tBest SNR path: " + str(N.find_best_latency(i.input, i.output)))
+        print("Latency: " + str(i.latency), end='')
+        print("\tSNR: " + str(i.snr))
+
+
 
