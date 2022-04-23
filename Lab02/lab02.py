@@ -497,7 +497,7 @@ if __name__ == '__main__':
             used_path_list = list(used_path)
             for j in range(0, len(used_path_list) - 1):
                 N.lines[used_path_list[j] + used_path_list[j + 1]].state = 0
-        print("\tBest available SNR path found: " + used_path
+        print("\tBest available SNR path found: " + used_path)
 
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
