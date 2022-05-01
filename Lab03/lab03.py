@@ -199,9 +199,6 @@ class Line:
 # 4. Define the attribute route_space in the class Network. It has to be a
 #    pandas dataframe that for all the possible paths describe the availability
 #    for each channel.
-# Eg:   Path    Ch1 Ch2 Ch3
-#       ADF     0   1   1
-#       BD      0   0   1
 class Network:
     def __init__(self, number_of_channels, file_name="../Lab01/nodes.json"):
         self._nodes = {}
@@ -236,14 +233,15 @@ class Network:
                 self._lines[label] = Line(label, length, number_of_channels)
 
         route_space_dict = {}
+        route_space_dict['Path'] = list()
         for i in self.nodes.keys():
             for j in self.nodes:
                 if i != j:
-                    route_space_dict['Path'] = self.find_paths(i, j)
+                    route_space_dict['Path'] += self.find_paths(i, j)
 
         for i in range(number_of_channels):
             for j in range(len(route_space_dict['Path'])):
-                route_space_dict[str(i)] = 1
+                route_space_dict[str(i + 1)] = 1
         self._route_space = pd.DataFrame(route_space_dict)
 
     @property
@@ -266,8 +264,9 @@ class Network:
     def route_space(self):
         return self._route_space
 
-    def set_route_space(self, channel, index, val):
-        self._route_space.loc[str(index), channel] = val
+    def reset_route_space(self):
+        for i in range(self.number_of_channels):
+            self.route_space[str(i + 1)] = int(1)
 
     def connect(self):
         for i in self.nodes.values():
@@ -369,7 +368,7 @@ class Network:
                 path = list(self.weighted_paths['Path'][cnt])
                 channel = 0
                 # check for every channel
-                for k in range(1, self.number_of_channels):
+                for k in range(0, self.number_of_channels):
                     flag = 0
                     # check, for channel k, all lines in path
                     for j in range(0, len(path) - 1):
@@ -378,7 +377,7 @@ class Network:
                             break
                     # if all lines are free, flag will not be updated, so a usable path has been found
                     if flag == 0:
-                        channel = k
+                        channel = k + 1
                         break
 
                 # if I've found no channels, the last iteration will have set the flag to 1
@@ -408,18 +407,18 @@ class Network:
 
                 # free lines check
                 path = list(self.weighted_paths['Path'][cnt])
-                channel = 0
+                channel = int()
                 # check for every channel
-                for k in range(1, self.number_of_channels):
+                for k in range(0, self.number_of_channels):
                     flag = 0
                     # check, for channel k, all lines in path
                     for j in range(0, len(path) - 1):
-                        if self.lines[path[j] + path[j + 1]].state[k] == 0:
+                        if self.lines[str(path[j] + path[j + 1])].state[k] == 0:
                             flag = 1
                             break
                     # if all lines are free, flag will not be updated, so a usable path has been found
                     if flag == 0:
-                        channel = k
+                        channel = k + 1
                         break
 
                 # if I've found no channels, the last iteration will have set the flag to 1
@@ -440,6 +439,11 @@ class Network:
 
     def stream(self, connections, latency_or_snr='latency'):
         used_paths = list()
+
+        all_paths = list()
+        for i in self.route_space['Path']:
+            all_paths.append(str(i))
+
         for i in connections:
             if latency_or_snr == 'latency':
                 p_list = self.find_best_latency(i.input, i.output)
@@ -460,16 +464,16 @@ class Network:
 
                 s = Lightpath(i.signal_power, channel)
                 # occupy lines
-                for j in range(0, len(p) - 1):
-                    self.lines[p[j] + p[j+1]].state[channel] = 0
+                for j in range(0, len(p_list) - 1):
+                    self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
                 ind = 0
-                for j in self.route_space['Path']:
-                    if p == j:
-                        break
-                    ind += 1
-                self.set_route_space(channel, ind, 0)
 
-                s.path = list(p)
+                s.path = p_list
+                # 6. Modify the methods propagate and stream in the class Network that
+                #    should use and update the attribute route_space in order to consider the
+                #    channel occupancy for any path.
+                self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
+
                 self.propagate(s)
                 i.latency = s.latency
 
@@ -532,7 +536,6 @@ if __name__ == '__main__':
     power = 0.001
     for i in range(100):
         node_list.append(random.sample(nodes, 2))
-
     # finding paths based on best latency:
     for i in node_list:
         connections.append(Connection(i[0], i[1], power))
@@ -556,6 +559,7 @@ if __name__ == '__main__':
     for i in N.lines.values():
         for j in range(N.number_of_channels):
             i.set_state(j, 1)
+    N.reset_route_space()
 
     # finding paths based on best snr:
     for i in node_list:
@@ -575,3 +579,4 @@ if __name__ == '__main__':
 
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
+
