@@ -2,13 +2,8 @@ import json
 import math
 import matplotlib.pyplot as plt
 import pandas as pd
-import random
 
 
-# 3. Define a new method in all the elements that propagate a SignalInforma-
-#    tion without occupying any line. This new method, that can be called
-#    probe, must be used to create the weighted graph instead of using the
-#    propagate method.
 class SignalInformation:
     def __init__(self, signal_power):
         self._signal_power = float(signal_power)
@@ -67,10 +62,6 @@ class SignalInformation:
             return 0
 
 
-# 1. Define the class Lightpath as an extension of the class SignalInforma-
-#    tion. Beside the latter list of attributes, an instance of Lightpath has
-#    to include an attribute channel which is an integer and indicates which
-#    frequency slot the signal occupies when is propagated.
 class Lightpath(SignalInformation):
     def __init__(self, signal_power, channel):
         super().__init__(signal_power)
@@ -130,9 +121,6 @@ class Node:
             self.successive[self.label + next_node].probe(signal)
 
 
-# 2. Modify the attribute state of the class Line; it has to be a list of strings
-#    that indicate the occupancy of each channel. Moreover, modify the method
-#    propagate accordingly.
 class Line:
     def __init__(self, label, length, number_of_channels):
         self._label = label
@@ -196,9 +184,6 @@ class Line:
             i.probe(signal)
 
 
-# 4. Define the attribute route_space in the class Network. It has to be a
-#    pandas dataframe that for all the possible paths describe the availability
-#    for each channel.
 class Network:
     def __init__(self, number_of_channels, file_name="../Lab01/nodes.json"):
         self._nodes = {}
@@ -353,8 +338,6 @@ class Network:
 
         plt.show()
 
-    # 5. Modify the methods find best snr() and find best latency() in the
-    #    class Network such that they manage the channel occupancy.
     def find_best_snr(self, in_node, out_node):
         best_snr = 0
         cnt = 0
@@ -456,9 +439,6 @@ class Network:
                     self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
 
                 s.path = p_list
-                # 6. Modify the methods propagate and stream in the class Network that
-                #    should use and update the attribute route_space in order to consider the
-                #    channel occupancy for any path.
                 self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
 
                 to_find = list()
@@ -480,100 +460,3 @@ class Network:
                 used_paths.append(p)
 
         return used_paths
-
-
-class Connection:
-    def __init__(self, input, output, signal_power):
-        self._input = str(input)
-        self._output = str(output)
-        self._signal_power = float(signal_power)
-        self._latency = float(0)
-        self._snr = float(0)
-
-    @property
-    def input(self):
-        return self._input
-
-    @property
-    def output(self):
-        return self._output
-
-    @property
-    def signal_power(self):
-        return self._signal_power
-
-    @property
-    def latency(self):
-        return self._latency
-
-    @property
-    def snr(self):
-        return self._snr
-
-    @latency.setter
-    def latency(self, latency):
-        self._latency = latency
-
-    @snr.setter
-    def snr(self, snr):
-        self._snr = snr
-
-
-if __name__ == '__main__':
-    N = Network(10)
-    N.connect()
-    used_paths = list()
-
-    # N.draw()
-
-    nodes = N.nodes.keys()
-    node_list = list()
-    connections = list()
-
-    power = 0.001
-    for i in range(100):
-        node_list.append(random.sample(nodes, 2))
-    # finding paths based on best latency:
-    for i in node_list:
-        connections.append(Connection(i[0], i[1], power))
-
-    used_paths = N.stream(connections)
-    path_cnt = 0
-
-    for i in connections:
-        print("\nConnection: " + str(i.input + "->" + i.output), end='')
-
-        used_path = 'None'
-        if i.snr != 0:
-            used_path = used_paths[path_cnt]
-            path_cnt += 1
-        print("\tBest available latency path: " + used_path)
-
-        print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
-
-    # freeing lines
-    for i in N.lines.values():
-        for j in range(N.number_of_channels):
-            i.set_state(j, 1)
-
-    N.reset_route_space()
-
-    # finding paths based on best snr:
-    for i in node_list:
-        connections.append(Connection(i[0], i[1], power))
-
-    used_paths = N.stream(connections, 'snr')
-    path_cnt = 0
-
-    for i in connections:
-        print("\nConnection: " + str(i.input + "->" + i.output), end='')
-
-        used_path = 'None'
-        if i.snr != 0:
-            used_path = used_paths[path_cnt]
-            path_cnt += 1
-        print("\tBest available SNR path found: " + used_path)
-
-        print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
