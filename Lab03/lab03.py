@@ -455,18 +455,23 @@ class Network:
                     self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
 
                 s.path = p_list
+
                 # 6. Modify the methods propagate and stream in the class Network that
                 #    should use and update the attribute route_space in order to consider the
                 #    channel occupancy for any path.
+
+                # occupy channel for specific path
                 self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
 
+                # find other paths to occupy:
+                # extract lines to find from selected path
                 to_find = list()
-                for ind in range(len(p_list)-1):
+                for ind in range(len(p_list) - 1):
                     to_find.append(str(p_list[ind] + p_list[ind + 1]))
-
+                # extract list of paths from pandas dataframe
                 for ind in range(len(to_find)):
                     to_change = [a for a in self.route_space['Path'] if to_find[ind] in a]
-
+                # update dataframe using list of paths
                 for ind in range(len(to_change)):
                     self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
 
