@@ -206,7 +206,6 @@ class Network:
         self._weighted_paths = pd.read_csv("../Lab01/Network.csv")
         self._number_of_channels = number_of_channels
 
-
         rf = open(file_name, "r")
         py_dict = dict(json.load(rf))
         node_dict = {}
@@ -369,7 +368,7 @@ class Network:
                 path_list = list(path)
                 channel = int()
                 flag = 1
-                for k in range(1, self.number_of_channels):
+                for k in range(1, self.number_of_channels + 1):
                     if int(self.route_space.loc[self.route_space['Path'] == path, str(k)]) != 0:
                         channel = k
                         flag = 0
@@ -403,7 +402,7 @@ class Network:
                 path_list = list(path)
                 channel = int()
                 flag = 1
-                for k in range(1, self.number_of_channels):
+                for k in range(1, self.number_of_channels + 1):
                     if int(self.route_space.loc[self.route_space['Path'] == path, str(k)]) != 0:
                         channel = k
                         flag = 0

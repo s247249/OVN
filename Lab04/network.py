@@ -3,185 +3,9 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
-class SignalInformation:
-    def __init__(self, signal_power):
-        self._signal_power = float(signal_power)
-        self._noise_power = float(0)
-        self._latency = float(0)
-        self._path = list()
-
-    @property
-    def signal_power(self):
-        return self._signal_power
-
-    @property
-    def noise_power(self):
-        return self._noise_power
-
-    @property
-    def latency(self):
-        return self._latency
-
-    @property
-    def path(self):
-        return self._path
-
-    @signal_power.setter
-    def signal_power(self, signal_power):
-        self._signal_power = signal_power
-
-    @noise_power.setter
-    def noise_power(self, noise_power):
-        self._noise_power = noise_power
-
-    @latency.setter
-    def latency(self, latency):
-        self._latency = latency
-
-    @path.setter
-    def path(self, path):
-        self._path = path
-
-    def update_signal_power(self, signal_power):
-        sp = self._signal_power + signal_power
-        self.signal_power += sp
-
-    def update_noise_power(self, noise_power):
-        np = self._noise_power + noise_power
-        self.noise_power += np
-
-    def update_latency(self, latency):
-        self.latency += latency
-
-    def update_path(self):
-        del self.path[0]
-        if len(self.path) > 0:
-            return self.path[0]
-        else:
-            return 0
-
-
-class Lightpath(SignalInformation):
-    def __init__(self, signal_power, channel):
-        super().__init__(signal_power)
-        self._channel = channel
-
-    @property
-    def channel(self):
-        return self._channel
-
-
-class Node:
-    def __init__(self, py_dict):
-        self._label = str(py_dict['label'])
-        self._position = tuple(py_dict['position'])
-        self._connected_nodes = list(py_dict['connected_nodes'])
-        self._successive = dict()
-
-    @property
-    def label(self):
-        return self._label
-
-    @property
-    def position(self):
-        return self._position
-
-    @property
-    def connected_nodes(self):
-        return self._connected_nodes
-
-    @property
-    def successive(self):
-        return self._successive
-
-    @label.setter
-    def label(self, label):
-        self._label = label
-
-    @position.setter
-    def position(self, position):
-        self._position = position
-
-    @connected_nodes.setter
-    def connected_nodes(self, nodes):
-        self._connected_nodes = nodes
-
-    def set_successive(self, line):
-        self._successive[line.label] = line
-
-    def propagate(self, signal):
-        next_node = str(signal.update_path())
-        if next_node != "0":
-            self.successive[self.label + next_node].propagate(signal)
-
-    def probe(self, signal):
-        next_node = str(signal.update_path())
-        if next_node != "0":
-            self.successive[self.label + next_node].probe(signal)
-
-
-class Line:
-    def __init__(self, label, length, number_of_channels):
-        self._label = label
-        self._length = length
-        self._successive = dict()
-        self._state = list()
-
-        for i in range(number_of_channels):
-            self._state.append(1)
-
-    @property
-    def label(self):
-        return self._label
-
-    @property
-    def length(self):
-        return self._length
-
-    @property
-    def successive(self):
-        return self._successive
-
-    @property
-    def state(self):
-        return self._state
-
-    @label.setter
-    def label(self, label):
-        self._label = label
-
-    @length.setter
-    def length(self, length):
-        self._length = length
-
-    def set_state(self, index, state):
-        self._state[index] = state
-
-    def set_successive(self, node):
-        self._successive[node.label] = node
-
-    def latency_generation(self):
-        return float(self._length / (3e8 * 2/3))
-
-    def noise_generation(self, signal_power):
-        return float(1e-9 * signal_power * self.length)
-
-    def propagate(self, signal):
-        latency = self.latency_generation()
-        noise = self.noise_generation(signal.signal_power)
-        signal.update_latency(latency)
-        signal.update_noise_power(noise)
-        for i in self.successive.values():
-            i.propagate(signal)
-
-    def probe(self, signal):
-        latency = self.latency_generation()
-        noise = self.noise_generation(signal.signal_power)
-        signal.update_latency(latency)
-        signal.update_noise_power(noise)
-        for i in self.successive.values():
-            i.probe(signal)
+import node
+import line
+import signal_information as sig_in
 
 
 class Network:
@@ -190,7 +14,6 @@ class Network:
         self._lines = {}
         self._weighted_paths = pd.read_csv("../Lab01/Network.csv")
         self._number_of_channels = number_of_channels
-
 
         rf = open(file_name, "r")
         py_dict = dict(json.load(rf))
@@ -205,7 +28,7 @@ class Network:
             cnt += 1
             node_dict['position'] = tuple(i['position'])
             node_dict['connected_nodes'] = list(i['connected_nodes'])
-            self._nodes[node_dict['label']] = Node(dict(node_dict))
+            self._nodes[node_dict['label']] = node.Node(dict(node_dict))
 
         # line creation
         for i in self._nodes.values():
@@ -215,7 +38,7 @@ class Network:
                 y = abs(i.position[1] - self._nodes[j].position[1])
                 float_tuple = (x, y)
                 length = math.sqrt(float_tuple[0]**2 + float_tuple[1]**2)
-                self._lines[label] = Line(label, length, number_of_channels)
+                self._lines[label] = line.Line(label, length, number_of_channels)
 
         route_space_dict = {}
         route_space_dict['Path'] = list()
@@ -352,7 +175,7 @@ class Network:
                 path_list = list(path)
                 channel = int()
                 flag = 1
-                for k in range(1, self.number_of_channels):
+                for k in range(1, self.number_of_channels + 1):
                     if int(self.route_space.loc[self.route_space['Path'] == path, str(k)]) != 0:
                         channel = k
                         flag = 0
@@ -386,7 +209,7 @@ class Network:
                 path_list = list(path)
                 channel = int()
                 flag = 1
-                for k in range(1, self.number_of_channels):
+                for k in range(1, self.number_of_channels + 1):
                     if int(self.route_space.loc[self.route_space['Path'] == path, str(k)]) != 0:
                         channel = k
                         flag = 0
@@ -433,12 +256,15 @@ class Network:
                 for j in p_list:
                     p += j
 
-                s = Lightpath(i.signal_power, channel)
+                s = sig_in.Lightpath(i.signal_power, channel)
                 # occupy lines
                 for j in range(0, len(p_list) - 1):
                     self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
 
                 s.path = p_list
+                # 6. Modify the methods propagate and stream in the class Network that
+                #    should use and update the attribute route_space in order to consider the
+                #    channel occupancy for any path.
                 self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
 
                 to_find = list()
