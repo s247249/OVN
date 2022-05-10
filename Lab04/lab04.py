@@ -7,6 +7,12 @@ from network import Network
 from connection import Connection
 
 
+# 5. Run the main that evaluates the distribution of the SNR on a list of
+#    100 randomly chosen connections for the three newly provided network
+#    description json files and plot the histogram of the accepted connections
+#    bit rates calculating the overall average. Also calculate the total capacity
+#    allocated into the network. Compare the three results obtained for the
+#    three different transceiver strategies.
 if __name__ == '__main__':
     BER_t = 1e-3
     Rs = 32
@@ -18,12 +24,12 @@ if __name__ == '__main__':
 
     # N.draw()
 
-    """nodes = N.nodes.keys()
+    nodes = N.nodes.keys()
     node_list = list()
     connections = list()
 
     power = 0.001
-    for i in range(20):
+    for i in range(100):
         node_list.append(random.sample(nodes, 2))
     # finding paths based on best latency:
     for i in node_list:
@@ -43,6 +49,7 @@ if __name__ == '__main__':
 
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
+        print("\tBit rate: " + str(i.bit_rate))
 
     # freeing lines
     for i in N.lines.values():
@@ -70,15 +77,9 @@ if __name__ == '__main__':
 
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
+        print("\tBit rate: " + str(i.bit_rate))
 
     N.route_space.to_csv('used_paths_snr.csv')
-
-    # test
-    print('\nBitrate of path ' + str(used_paths[-1]) + '=' + str(N.calculate_bit_rate(used_paths[-1], 'shannon-rate')))
-    print('\nBitrate of path ' + str(used_paths[0]) + '=' + str(N.calculate_bit_rate(used_paths[0], 'flex-rate')))
-    print('\nBitrate of path ' + str(used_paths[1]) + '=' + str(N.calculate_bit_rate(used_paths[1], 'flex-rate')))
-    print('\nBitrate of path ' + str(used_paths[2]) + '=' + str(N.calculate_bit_rate(used_paths[2], 'flex-rate')))
-    print('\nBitrate of path ' + str('ABDE') + '=' + str(N.calculate_bit_rate('ABDE', 'shannon-rate')))"""
 
     # 2. Plot on the same figure the bit rate curve versus GSNR (in dB) of each
     # transceiver technology.

@@ -236,6 +236,13 @@ class Network:
 
         return best_path
 
+    # 4. Modify the stream() method of the Network class that has to call the
+    #    calculate_bit_rate(path, strategy) once the path for the connection
+    #    is given and using the transceiver attribute value of the first node in the
+    #    path. If the path does not reach the minimum GSNR requirement for the
+    #    specified transceiver strategy (zero bit rate case), the connection has to be
+    #    rejected. Add the attribute bit rate to the Connection class that stores
+    #    the assigned bit rate Rb.
     def stream(self, connections, latency_or_snr='latency'):
         used_paths = list()
 
@@ -255,41 +262,51 @@ class Network:
             if not p_list:
                 i.latency = None
                 i.snr = 0
+                i.bit_rate = 0
             else:
                 channel = p_list.pop()
                 p = ''
                 for j in p_list:
                     p += j
 
-                s = Lightpath(i.signal_power, channel)
-                # occupy lines
-                for j in range(0, len(p_list) - 1):
-                    self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
+                strategy = str(self.nodes[p_list[0]].transceiver)
+                Rb = self.calculate_bit_rate(p, strategy)
+                if Rb == 0:
+                    i.latency = None
+                    i.snr = 0
+                    i.bit_rate = Rb
+                else:
+                    s = Lightpath(i.signal_power, channel)
+                    # occupy lines
+                    for j in range(0, len(p_list) - 1):
+                        self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
 
-                s.path = p_list
+                    s.path = p_list
 
-                # occupy channel for specific path
-                self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
+                    # occupy channel for specific path
+                    self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
 
-                # find other paths to occupy:
-                # extract lines to find from selected path
-                to_find = list()
-                for ind in range(len(p_list)-1):
-                    to_find.append(str(p_list[ind] + p_list[ind + 1]))
-                # extract list of paths from pandas dataframe
-                for ind in range(len(to_find)):
-                    to_change = [a for a in self.route_space['Path'] if to_find[ind] in a]
-                # update dataframe using list of paths
-                for ind in range(len(to_change)):
-                    self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
+                    # find other paths to occupy:
+                    # extract lines to find from selected path
+                    to_find = list()
+                    for ind in range(len(p_list)-1):
+                        to_find.append(str(p_list[ind] + p_list[ind + 1]))
+                    # extract list of paths from pandas dataframe
+                    for ind in range(len(to_find)):
+                        to_change = [a for a in self.route_space['Path'] if to_find[ind] in a]
+                    # update dataframe using list of paths
+                    for ind in range(len(to_change)):
+                        self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
 
-                self.propagate(s)
-                i.latency = s.latency
+                    self.propagate(s)
+                    i.latency = s.latency
 
-                i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
+                    i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
 
-                # for print purposes
-                used_paths.append(p)
+                    i.bit_rate = Rb
+
+                    # for print purposes
+                    used_paths.append(p)
 
         return used_paths
 

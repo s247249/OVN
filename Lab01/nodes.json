@@ -9,7 +9,7 @@
    -350e3,
    150e3
   ],
-  "transceiver": "flex_rate"
+  "transceiver": "flex-rate"
  },
  "B": {
   "connected_nodes": [
@@ -21,7 +21,7 @@
    -100e3,
    400e3
   ],
-  "transceiver": "flex_rate"
+  "transceiver": "flex-rate"
  },
  "C": {
   "connected_nodes": [
@@ -33,7 +33,7 @@
    -200e3,
    -300e3
   ],
-  "transceiver": "flex_rate"
+  "transceiver": "flex-rate"
  },
  "D": {
   "connected_nodes": [
@@ -47,7 +47,7 @@
    0,
    0
   ],
-  "transceiver": "flex_rate"
+  "transceiver": "flex-rate"
  },
  "E": {
   "connected_nodes": [
@@ -59,7 +59,7 @@
    150e3,
    -350e3
   ],
-  "transceiver": "flex_rate"
+  "transceiver": "flex-rate"
  },
  "F": {
   "connected_nodes": [
@@ -70,6 +70,7 @@
   "position": [
    300e3,
    250e3
-  ]
+  ],
+  "transceiver": "flex-rate"
  }
 }
