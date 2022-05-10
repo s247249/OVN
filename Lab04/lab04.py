@@ -1,11 +1,11 @@
 import random
 
-import network as net
-import connection as conn
+from network import Network
+from connection import Connection
 
 
 if __name__ == '__main__':
-    N = net.Network(10)
+    N = Network(10)
     N.connect()
     used_paths = list()
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
         node_list.append(random.sample(nodes, 2))
     # finding paths based on best latency:
     for i in node_list:
-        connections.append(conn.Connection(i[0], i[1], power))
+        connections.append(Connection(i[0], i[1], power))
 
     used_paths = N.stream(connections)
     path_cnt = 0
@@ -42,11 +42,12 @@ if __name__ == '__main__':
         for j in range(N.number_of_channels):
             i.set_state(j, 1)
 
+    N.route_space.to_csv('used_paths_lat.csv')
     N.reset_route_space()
 
     # finding paths based on best snr:
     for i in node_list:
-        connections.append(conn.Connection(i[0], i[1], power))
+        connections.append(Connection(i[0], i[1], power))
 
     used_paths = N.stream(connections, 'snr')
     path_cnt = 0
@@ -63,4 +64,11 @@ if __name__ == '__main__':
         print("Latency: " + str(i.latency), end='')
         print("\tSNR: " + str(i.snr))
 
-    print(N.route_space)
+    N.route_space.to_csv('used_paths_snr.csv')
+
+    # test
+    print('\nBitrate of path ' + str(used_paths[-1]) + '=' + str(N.calculate_bit_rate(used_paths[-1], 'shannon-rate')))
+    print('\nBitrate of path ' + str(used_paths[0]) + '=' + str(N.calculate_bit_rate(used_paths[0], 'flex-rate')))
+    print('\nBitrate of path ' + str(used_paths[1]) + '=' + str(N.calculate_bit_rate(used_paths[1], 'flex-rate')))
+    print('\nBitrate of path ' + str(used_paths[2]) + '=' + str(N.calculate_bit_rate(used_paths[2], 'flex-rate')))
+    print('\nBitrate of path ' + str('ABDE') + '=' + str(N.calculate_bit_rate('ABDE', 'shannon-rate')))

@@ -3,9 +3,10 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 
-import node
-import line
-import signal_information as sig_in
+from node import Node
+from line import Line
+from signal_information import Lightpath
+from lab04_network_methods import Network4 as net4
 
 
 class Network:
@@ -28,7 +29,7 @@ class Network:
             cnt += 1
             node_dict['position'] = tuple(i['position'])
             node_dict['connected_nodes'] = list(i['connected_nodes'])
-            self._nodes[node_dict['label']] = node.Node(dict(node_dict))
+            self._nodes[node_dict['label']] = Node(dict(node_dict))
 
         # line creation
         for i in self._nodes.values():
@@ -38,7 +39,7 @@ class Network:
                 y = abs(i.position[1] - self._nodes[j].position[1])
                 float_tuple = (x, y)
                 length = math.sqrt(float_tuple[0]**2 + float_tuple[1]**2)
-                self._lines[label] = line.Line(label, length, number_of_channels)
+                self._lines[label] = Line(label, length, number_of_channels)
 
         route_space_dict = {}
         route_space_dict['Path'] = list()
@@ -256,7 +257,7 @@ class Network:
                 for j in p_list:
                     p += j
 
-                s = sig_in.Lightpath(i.signal_power, channel)
+                s = Lightpath(i.signal_power, channel)
                 # occupy lines
                 for j in range(0, len(p_list) - 1):
                     self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
@@ -287,3 +288,6 @@ class Network:
                 used_paths.append(p)
 
         return used_paths
+
+    def calculate_bit_rate(self, path, strategy):
+        return net4.calculate_bit_rate(self, path, strategy)
