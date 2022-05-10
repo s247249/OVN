@@ -1,5 +1,5 @@
 import math
-from scipy.special import erfinv
+from scipy.special import erfcinv
 
 
 # 1. Implement a method calculate bit rate(path, strategy) in the Net-
@@ -19,6 +19,7 @@ class Network4:
         BER_t = 1e-3
         Rs = 32
         Bn = 12.5
+        Rb = -1
 
         cnt = 0
         for i in self.weighted_paths['Path']:
@@ -30,22 +31,25 @@ class Network4:
         GSNR = 10 ** (GSNR_dB/10)
 
         if strategy == 'fixed-rate':
-            if GSNR >= 2 * ((erfinv(2 * BER_t)) ** 2) * Rs/Bn:
+            if GSNR >= 2 * ((erfcinv(2 * BER_t)) ** 2) * Rs/Bn:
                 Rb = 100
             else:
                 Rb = 0
 
         elif strategy == 'flex-rate':
-            if GSNR < 2 * ((erfinv(2 * BER_t)) ** 2) * Rs/Bn:
+            if GSNR < 2 * ((erfcinv(2 * BER_t)) ** 2) * Rs/Bn:
                 Rb = 0
-            elif GSNR < 14/3 * ((erfinv(3/2 * BER_t)) ** 2) * Rs/Bn:
+            elif GSNR < 14/3 * ((erfcinv(3/2 * BER_t)) ** 2) * Rs/Bn:
                 Rb = 100
-            elif GSNR < 10 * ((erfinv(8/3 * BER_t)) ** 2) * Rs/Bn:
+            elif GSNR < 10 * ((erfcinv(8/3 * BER_t)) ** 2) * Rs/Bn:
                 Rb = 200
             else:
                 Rb = 400
 
         elif strategy == 'shannon-rate':
             Rb = 2 * Rs * math.log(1+GSNR+Rs/Bn, 2)
+
+        else:
+            print('Wrong strategy')
 
         return Rb

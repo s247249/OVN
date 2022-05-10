@@ -29,6 +29,10 @@ class Network:
             cnt += 1
             node_dict['position'] = tuple(i['position'])
             node_dict['connected_nodes'] = list(i['connected_nodes'])
+            if 'transceiver' in i:
+                node_dict['transceiver'] = str(i['transceiver'])
+            else:
+                node_dict['transceiver'] = 'fixed-rate'
             self._nodes[node_dict['label']] = Node(dict(node_dict))
 
         # line creation
