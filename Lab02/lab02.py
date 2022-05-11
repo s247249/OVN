@@ -478,6 +478,7 @@ if __name__ == '__main__':
         i.state = 1
 
     # finding paths based on best snr:
+    connections = list()
     for i in node_list:
         connections.append(Connection(i[0], i[1], power))
 

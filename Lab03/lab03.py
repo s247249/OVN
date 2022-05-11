@@ -564,6 +564,7 @@ if __name__ == '__main__':
     N.reset_route_space()
 
     # finding paths based on best snr:
+    connections = list()
     for i in node_list:
         connections.append(Connection(i[0], i[1], power))
 

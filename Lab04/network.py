@@ -312,3 +312,6 @@ class Network:
 
     def calculate_bit_rate(self, path, strategy):
         return net4.calculate_bit_rate(self, path, strategy)
+
+    def graph(self):
+        net4.graph(self)
