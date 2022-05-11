@@ -47,11 +47,11 @@ if __name__ == '__main__':
         if i.snr != 0:
             used_path = used_paths_fixed[path_cnt]
             path_cnt += 1
-        print("\tBest available latency path: " + used_path)
+        print("\t\t\tBest available latency path: " + used_path)
 
         print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
-        print("\tBit rate: " + str(i.bit_rate))
+        print("\t\tSNR: " + str(i.snr))
+        print("\t\tBit rate: " + str(i.bit_rate))
 
     # freeing lines
     for i in N_fixed.lines.values():
@@ -76,11 +76,11 @@ if __name__ == '__main__':
         if i.snr != 0:
             used_path = used_paths_fixed[path_cnt]
             path_cnt += 1
-        print("\tBest available SNR path found: " + used_path)
+        print("\t\t\tBest available SNR path found: " + used_path)
 
         print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
-        print("\tBit rate: " + str(i.bit_rate))
+        print("\t\tSNR: " + str(i.snr))
+        print("\t\tBit rate: " + str(i.bit_rate))
 
     N_fixed.route_space.to_csv('used_paths_fixed_snr.csv')
 
@@ -100,11 +100,11 @@ if __name__ == '__main__':
         if i.snr != 0:
             used_path = used_paths_flex[path_cnt]
             path_cnt += 1
-        print("\tBest available latency path: " + used_path)
+        print("\t\t\tBest available latency path: " + used_path)
 
         print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
-        print("\tBit rate: " + str(i.bit_rate))
+        print("\t\tSNR: " + str(i.snr))
+        print("\t\tBit rate: " + str(i.bit_rate))
 
     # freeing lines
     for i in N_flex.lines.values():
@@ -129,11 +129,11 @@ if __name__ == '__main__':
         if i.snr != 0:
             used_path = used_paths_flex[path_cnt]
             path_cnt += 1
-        print("\tBest available SNR path found: " + used_path)
+        print("\t\t\tBest available SNR path found: " + used_path)
 
         print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
-        print("\tBit rate: " + str(i.bit_rate))
+        print("\t\tSNR: " + str(i.snr))
+        print("\t\tBit rate: " + str(i.bit_rate))
 
     N_flex.route_space.to_csv('used_paths_flex_snr.csv')
 
@@ -153,11 +153,11 @@ if __name__ == '__main__':
         if i.snr != 0:
             used_path = used_paths_shannon[path_cnt]
             path_cnt += 1
-        print("\tBest available latency path: " + used_path)
+        print("\t\t\tBest available latency path: " + used_path)
 
         print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
-        print("\tBit rate: " + str(i.bit_rate))
+        print("\t\tSNR: " + str(i.snr))
+        print("\t\tBit rate: " + str(i.bit_rate))
 
     # freeing lines
     for i in N_shannon.lines.values():
@@ -182,11 +182,11 @@ if __name__ == '__main__':
         if i.snr != 0:
             used_path = used_paths_shannon[path_cnt]
             path_cnt += 1
-        print("\tBest available SNR path found: " + used_path)
+        print("\t\t\tBest available SNR path found: " + used_path)
 
         print("Latency: " + str(i.latency), end='')
-        print("\tSNR: " + str(i.snr))
-        print("\tBit rate: " + str(i.bit_rate))
+        print("\t\tSNR: " + str(i.snr))
+        print("\t\tBit rate: " + str(i.bit_rate))
 
     N_shannon.route_space.to_csv('used_paths_shannon_snr.csv')
     N_fixed.graph()
