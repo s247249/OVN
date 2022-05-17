@@ -6,14 +6,14 @@ import pandas as pd
 from node import Node
 from line import Line
 from signal_information import Lightpath
-from lab04_network_methods import Network4 as net4
+from ..added_methods.lab04_network import Network4 as net4
 
 
 class Network:
     def __init__(self, number_of_channels, file_name="../Lab01/nodes.json"):
         self._nodes = {}
         self._lines = {}
-        self._weighted_paths = pd.read_csv("../Lab01/Network.csv")
+        self._weighted_paths = pd.read_csv("../../Lab01/Network.csv")
         self._number_of_channels = number_of_channels
 
         rf = open(file_name, "r")

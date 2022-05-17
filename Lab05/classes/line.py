@@ -1,4 +1,5 @@
-from lab05_line_methods import Line5 as line5
+from ..added_methods.lab05_line import Line5 as line5
+from ..extras.NLI_var import NliVar
 
 
 class Line:
@@ -25,17 +26,7 @@ class Line:
         #    the fibers necessary to evaluate the nonlinear interference noise, supposing
         #    that all the lines are composed of the same fiber variety:
         #    Remember that alpha = alpha_dB/(10log10(e)) and L_eff = 1/alpha
-
-        # dB/m
-        self._alpha_dB = 0.2e-3
-        # (m*Hz^2)-1
-        self._beta_2 = 2.13e-26
-        # (m*W)^-1
-        self._gamma = 1.27e-3
-        # GHz
-        self._Rs = 32
-        # GHz
-        self._df = 50
+        self._NLI_var = NliVar
 
         for i in range(number_of_channels):
             self._state.append(1)
@@ -75,24 +66,8 @@ class Line:
         return self._noise_figure
 
     @property
-    def alpha_dB(self):
-        return self._alpha_dB
-
-    @property
-    def beta_2(self):
-        return self._beta_2
-
-    @property
-    def gamma(self):
-        return self._gamma
-
-    @property
-    def Rs(self):
-        return self._Rs
-
-    @property
-    def df(self):
-        return self._df
+    def NLI_var(self):
+        return self._NLI_var
 
     @label.setter
     def label(self, label):

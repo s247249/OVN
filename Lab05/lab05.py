@@ -1,14 +1,14 @@
 import random
 
-from network import Network
-from connection import Connection
+from Lab05.classes.network import Network
+from Lab05.classes.connection import Connection
 
 
 if __name__ == '__main__':
 
-    N_fixed = Network(10, 'nodes_fixed.json')
-    N_flex = Network(10, 'nodes_flex.json')
-    N_shannon = Network(10, 'nodes_shannon.json')
+    N_fixed = Network(10, 'json_files/nodes_fixed.json')
+    N_flex = Network(10, 'json_files/nodes_flex.json')
+    N_shannon = Network(10, 'json_files/nodes_shannon.json')
     N_fixed.connect()
     N_flex.connect()
     N_shannon.connect()

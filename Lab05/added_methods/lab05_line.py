@@ -1,4 +1,6 @@
 import math
+
+
 # 2. Define in the class Line the method ase_generation that evaluate the to-
 #    tal amount of amplified spontaneous emissions (ASE) in linear units gen-
 #    erated by the amplifiers supposing that a cascade of amplifiers introduces
@@ -32,12 +34,13 @@ class Line5:
         # GHz
         Bn = 12.5
         N_span = (self.n_amplifiers - 1)
-        alpha = self.alpha_dB / (10 * math.log(math.e, 10))
+        alpha = self.NLI_var.alpha_dB / (10 * math.log(math.e, 10))
         log = math.log((math.pi ** 2)
-                       * self.beta_2 * (self.Rs ** 2)
-                       * (self.number_of_channels ** (2 * self.Rs/N_span))
+                       * self.NLI_var.beta_2 * (self.NLI_var.Rs ** 2)
+                       * (self.number_of_channels ** (2 * self.NLI_var.Rs/N_span))
                        / (2 * alpha), math.e)
-        eta_nli = 16/(27 * math.pi) * log * (self.gamma ^ 2) / (4 * alpha * self.beta_2 * (self.Rs ** 3))
+        eta_nli = 16/(27 * math.pi) * log \
+                  * (self.NLI_var.gamma ^ 2) / (4 * alpha * self.NLI_var.beta_2 * (self.NLI_var.Rs ** 3))
 
         NLI = (P_ch ** 3) * eta_nli * N_span * Bn
 
