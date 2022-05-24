@@ -14,10 +14,10 @@ class Line5:
     def ase_generation(self):
         N = self.n_amplifiers
         h = 6.6260693e-34
-        # GHz
-        f = 193414
-        # GHz
-        Bn = 12.5
+        # THz
+        f = 193.414
+        # THz
+        Bn = 12.5e-3
         NF = self.noise_figure
         G = self.gain
 
@@ -31,8 +31,8 @@ class Line5:
     # where Bn is the noise bandwidth (12.5 GHz) and Nspan is the number of
     # fiber span within the considered line.
     def nli_generation(self, P_ch):
-        # GHz
-        Bn = 12.5
+        # THz
+        Bn = 12.5e-3
         N_span = (self.n_amplifiers - 1)
         alpha = self.NLI_var.alpha_dB / (10 * math.log(math.e, 10))
         log = math.log((math.pi ** 2)
@@ -42,6 +42,7 @@ class Line5:
         eta_nli = 16/(27 * math.pi) * log \
                   * (self.NLI_var.gamma ^ 2) / (4 * alpha * self.NLI_var.beta_2 * (self.NLI_var.Rs ** 3))
 
-        NLI = (P_ch ** 3) * eta_nli * N_span * Bn
+        # P_ch has been give in W, must be in mW
+        NLI = ((P_ch * (10 ** 3)) ** 3) * eta_nli * N_span * Bn
 
         return NLI
