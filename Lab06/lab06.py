@@ -4,7 +4,6 @@ from classes.network import Network
 from classes.connection import Connection
 
 
-# testing
 def path_searcher(N, strat, node_list):
     # finding paths based on best latency:
     used_paths = list()
@@ -17,7 +16,7 @@ def path_searcher(N, strat, node_list):
     path_cnt = 0
 
     for i in connections:
-        print("\nConnection" + strat + ": " + str(i.input + "->" + i.output), end='')
+        print("\nConnection " + strat + ": " + str(i.input + "->" + i.output), end='')
 
         used_path = 'None'
         if i.snr != 0:
@@ -47,7 +46,7 @@ def path_searcher(N, strat, node_list):
     path_cnt = 0
 
     for i in connections:
-        print("\nConnection" + strat + ": " + str(i.input + "->" + i.output), end='')
+        print("\nConnection " + strat + ": " + str(i.input + "->" + i.output), end='')
 
         used_path = 'None'
         if i.snr != 0:

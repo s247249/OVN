@@ -9,13 +9,14 @@ class Line(Line6):
         self._length = length
         self._successive = dict()
         self._state = list()
+        self._number_of_channels = number_of_channels
 
         self._n_amplifiers = 2
         # dB
         self._gain = 16
         # dB
         self._noise_figure = 3
-        self._NLI_var = NliVar
+        self._NLI_var = NliVar()
 
         for i in range(number_of_channels):
             self._state.append(1)
@@ -58,6 +59,10 @@ class Line(Line6):
     def NLI_var(self):
         return self._NLI_var
 
+    @property
+    def number_of_channels(self):
+        return self._number_of_channels
+
     @label.setter
     def label(self, label):
         self._label = label
@@ -79,8 +84,8 @@ class Line(Line6):
     #    the methods for the computation of the ASE and the NLI and removing
     #    the old formula.
     def noise_generation(self, signal_power):
-        ASE = self.ase_generation(self)
-        NLI = self.nli_generation(self)
+        ASE = self.ase_generation()
+        NLI = self.nli_generation(signal_power)
         noise_list = (ASE, NLI)
         return noise_list
 
