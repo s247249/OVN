@@ -4,19 +4,22 @@ from scipy.special import erfcinv
 
 
 class Network4:
-    def calculate_bit_rate(self, path, strategy):
+    def calculate_bit_rate(self, l_path, strategy):
         BER_t = 1e-3
-        Rs = 32
+        Rs = l_path.Rs
         Bn = 12.5
         Rb = -1
 
-        cnt = 0
+        # old
+        """cnt = 0
         for i in self.weighted_paths['Path']:
             if path == i:
                 break
             cnt += 1
 
-        GSNR_dB = (self.weighted_paths['SNR (dB)'][cnt])
+        GSNR_dB = (self.weighted_paths['SNR (dB)'][cnt])"""
+
+        GSNR_dB = l_path.signal_power/l_path.noise_power
         GSNR = 10 ** (GSNR_dB/10)
 
         if strategy == 'fixed-rate':

@@ -1,9 +1,9 @@
 from ..added_methods.lab05_line import Line5 as line5
-from ..added_methods.lab06_line import Line6 as line6
+from ..added_methods.lab06_line import Line6
 from ..extras.NLI_var import NliVar
 
 
-class Line:
+class Line(Line6):
     def __init__(self, label, length, number_of_channels):
         self._label = label
         self._length = length
@@ -79,15 +79,17 @@ class Line:
     #    the methods for the computation of the ASE and the NLI and removing
     #    the old formula.
     def noise_generation(self, signal_power):
-        ASE = line5.ase_generation(self)
-        NLI = line5.nli_generation(self, signal_power)
+        ASE = self.ase_generation(self)
+        NLI = self.nli_generation(self)
         noise_list = (ASE, NLI)
         return noise_list
 
     def propagate(self, signal):
         latency = self.latency_generation()
 
-        sig_pow = self.optimized_launch_power(signal.signal_power)
+        sig_pow = self.optimized_launch_power()
+        if sig_pow > signal.signal_power:
+            signal.signal_power = sig_pow
 
         noise = self.noise_generation(sig_pow)
         signal.update_latency(latency)
@@ -109,5 +111,6 @@ class Line:
     def nli_generation(self, P_ch):
         return line5.nli_generation(self, P_ch)
 
-    def optimized_launch_power(self, signal_power):
-        return line6.optimized_launch_power(self, signal_power)
+    # testing a different way
+    """def optimized_launch_power(self):
+        return line6.optimized_launch_power(self)"""

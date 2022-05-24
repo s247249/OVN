@@ -1,5 +1,5 @@
 class Connection:
-    def __init__(self, input, output, signal_power):
+    def __init__(self, input, output, signal_power=0):
         self._input = str(input)
         self._output = str(output)
         self._signal_power = float(signal_power)

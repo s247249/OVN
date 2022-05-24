@@ -3,8 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from node import Node
-from line import Line
+from .node import Node
+from .line import Line
 from signal_information import Lightpath
 from ..added_methods.lab04_network import Network4 as net4
 
@@ -303,8 +303,11 @@ class Network:
 
         return used_paths
 
-    def calculate_bit_rate(self, path, strategy):
-        return net4.calculate_bit_rate(self, path, strategy)
+    # 4. Modify the method calculate bit rate of the class Network to have
+    #    as input a light-path instead of the path in order to retrieve the specific
+    #    symbol rate Rs.
+    def calculate_bit_rate(self, l_path, strategy):
+        return net4.calculate_bit_rate(self, l_path, strategy)
 
     def graph(self):
         net4.graph(self)

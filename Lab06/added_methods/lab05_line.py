@@ -1,6 +1,5 @@
 import math
 
-
 class Line5:
     def ase_generation(self):
         N = self.n_amplifiers

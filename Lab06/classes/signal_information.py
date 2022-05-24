@@ -1,5 +1,5 @@
 class SignalInformation:
-    def __init__(self, signal_power):
+    def __init__(self, signal_power=0):
         self._signal_power = float(signal_power)
         self._noise_power = float(0)
         self._latency = float(0)
@@ -66,3 +66,7 @@ class Lightpath(SignalInformation):
     @property
     def channel(self):
         return self._channel
+
+    @property
+    def Rs(self):
+        return self._Rs
