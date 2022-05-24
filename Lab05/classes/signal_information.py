@@ -60,7 +60,7 @@ class SignalInformation:
 #    the signal symbol rate and the frequency spacing between two consecutive
 #    channels.
 class Lightpath(SignalInformation):
-    def __init__(self, signal_power, channel, Rs, df):
+    def __init__(self, signal_power, channel, Rs=32, df=50):
         super().__init__(signal_power)
         self._channel = channel
         self._Rs = Rs

@@ -1,6 +1,6 @@
-from ..added_methods.lab05_line import Line5 as line5
-from ..added_methods.lab06_line import Line6
-from ..extras.NLI_var import NliVar
+from .added_methods.lab05_line import Line5 as line5
+from .added_methods.lab06_line import Line6
+from .extras.NLI_var import NliVar
 
 
 class Line(Line6):

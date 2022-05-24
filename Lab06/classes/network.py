@@ -5,15 +5,15 @@ import pandas as pd
 
 from .node import Node
 from .line import Line
-from signal_information import Lightpath
-from ..added_methods.lab04_network import Network4 as net4
+from .signal_information import Lightpath
+from .added_methods.lab04_network import Network4 as net4
 
 
 class Network:
     def __init__(self, number_of_channels, file_name="../Lab01/nodes.json"):
         self._nodes = {}
         self._lines = {}
-        self._weighted_paths = pd.read_csv("../../Lab01/Network.csv")
+        self._weighted_paths = pd.read_csv("../Lab01/Network.csv")
         self._number_of_channels = number_of_channels
 
         rf = open(file_name, "r")
@@ -263,43 +263,44 @@ class Network:
                     p += j
 
                 strategy = str(self.nodes[p_list[0]].transceiver)
-                Rb = self.calculate_bit_rate(p, strategy)
+
+                s = Lightpath(i.signal_power, channel)
+                # occupy lines
+                for j in range(0, len(p_list) - 1):
+                    self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
+
+                s.path = p_list
+
+                # occupy channel for specific path
+                self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
+
+                # find other paths to occupy:
+                # extract lines to find from selected path
+                to_find = list()
+                for ind in range(len(p_list)-1):
+                    to_find.append(str(p_list[ind] + p_list[ind + 1]))
+                # extract list of paths from pandas dataframe
+                for ind in range(len(to_find)):
+                    to_change = [a for a in self.route_space['Path'] if to_find[ind] in a]
+                # update dataframe using list of paths
+                for ind in range(len(to_change)):
+                    self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
+
+                self.propagate(s)
+                Rb = self.calculate_bit_rate(s, strategy)
                 if Rb == 0:
                     i.latency = None
                     i.snr = 0
                     i.bit_rate = Rb
                 else:
-                    s = Lightpath(i.signal_power, channel)
-                    # occupy lines
-                    for j in range(0, len(p_list) - 1):
-                        self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
-
-                    s.path = p_list
-
-                    # occupy channel for specific path
-                    self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
-
-                    # find other paths to occupy:
-                    # extract lines to find from selected path
-                    to_find = list()
-                    for ind in range(len(p_list)-1):
-                        to_find.append(str(p_list[ind] + p_list[ind + 1]))
-                    # extract list of paths from pandas dataframe
-                    for ind in range(len(to_find)):
-                        to_change = [a for a in self.route_space['Path'] if to_find[ind] in a]
-                    # update dataframe using list of paths
-                    for ind in range(len(to_change)):
-                        self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
-
-                    self.propagate(s)
                     i.latency = s.latency
 
                     i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
 
                     i.bit_rate = Rb
 
-                    # for print purposes
-                    used_paths.append(p)
+                # for print purposes
+                used_paths.append(p)
 
         return used_paths
 
