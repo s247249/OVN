@@ -1,7 +1,3 @@
-# 3. Add the attribute transceiver to the class Node. This attribute can
-#    be fixed-rate, flex-rate, shannon and must be read from the network
-#    description json file. If the transceiver is not provided in the description
-#    file, it has to be set as fixed-rate.
 class Node:
     def __init__(self, py_dict):
         self._label = str(py_dict['label'])

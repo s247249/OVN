@@ -1,9 +1,9 @@
-from .added_methods.lab05_line import Line5 as line5
+from .added_methods.lab05_line import Line5
 from .added_methods.lab06_line import Line6
 from .extras.NLI_var import NliVar
 
 
-class Line(Line6):
+class Line(Line5, Line6):
     def __init__(self, label, length, number_of_channels):
         self._label = label
         self._length = length
@@ -109,13 +109,3 @@ class Line(Line6):
         signal.update_noise_power(noise)
         for i in self.successive.values():
             i.probe(signal)
-
-    def ase_generation(self):
-        return line5.ase_generation(self)
-
-    def nli_generation(self, P_ch):
-        return line5.nli_generation(self, P_ch)
-
-    # testing a different way
-    """def optimized_launch_power(self):
-        return line6.optimized_launch_power(self)"""
