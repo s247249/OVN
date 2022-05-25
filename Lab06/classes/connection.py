@@ -31,6 +31,10 @@ class Connection:
     def bit_rate(self):
         return self._bit_rate
 
+    @signal_power.setter
+    def signal_power(self, power):
+        self._signal_power = power
+
     @latency.setter
     def latency(self, latency):
         self._latency = latency

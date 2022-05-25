@@ -293,6 +293,7 @@ class Network(Network4):
                     i.snr = 0
                     i.bit_rate = Rb
                 else:
+                    i.signal_power = s.signal_power
                     i.latency = s.latency
 
                     i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
