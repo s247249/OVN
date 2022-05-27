@@ -5,7 +5,7 @@ import math
 #    of ASE and NLI power adopted in your code.
 class Line6:
     def optimized_launch_power(self):
-        # J * s = kg * m^2 / s
+        # J * s
         h = 6.66e-34
         # Hz
         f0 = 193.414e12

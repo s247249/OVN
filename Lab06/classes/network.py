@@ -7,9 +7,10 @@ from .node import Node
 from .line import Line
 from .signal_information import Lightpath
 from .added_methods.lab04_network import Network4
+from .added_methods.lab06_network import Network6
 
 
-class Network(Network4):
+class Network(Network4, Network6):
     def __init__(self, number_of_channels, file_name="../Lab01/nodes.json"):
         self._nodes = {}
         self._lines = {}
@@ -170,7 +171,6 @@ class Network(Network4):
         best_snr = 0
         cnt = 0
         best_path = list()
-        flag = 1
 
         for i in self.weighted_paths['Routes']:
             if i == str(in_node + "->" + out_node):
@@ -236,48 +236,51 @@ class Network(Network4):
 
         return best_path
 
-    def stream(self, connections, latency_or_snr='latency'):
-        used_paths = list()
+    def stream(self, connection, latency_or_snr='latency'):
+        p = ''
 
-        all_paths = list()
-        for i in self.route_space['Path']:
-            all_paths.append(str(i))
+        if latency_or_snr == 'latency':
+            p_list = self.find_best_latency(connection.input, connection.output)
+        elif latency_or_snr == 'snr':
+            p_list = self.find_best_snr(connection.input, connection.output)
+        else:
+            print("wrong argument for 'latency_or_snr'\nWrite either 'latency' or 'snr'")
+            return
 
-        for i in connections:
-            if latency_or_snr == 'latency':
-                p_list = self.find_best_latency(i.input, i.output)
-            elif latency_or_snr == 'snr':
-                p_list = self.find_best_snr(i.input, i.output)
-            else:
-                print("wrong argument for 'latency_or_snr'\nWrite either 'latency' or 'snr'")
-                return
+        if not p_list:
+            connection.latency = None
+            connection.snr = 0
+            connection.bit_rate = 0
+        else:
+            channel = p_list.pop()
+            # generate return string p
+            for j in p_list:
+                p += j
 
-            if not p_list:
-                i.latency = None
-                i.snr = 0
-                i.bit_rate = 0
-            else:
-                channel = p_list.pop()
+            strategy = str(self.nodes[p_list[0]].transceiver)
+
+            s = Lightpath(connection.signal_power, channel)
+            # occupy lines
+            for j in range(0, len(p_list) - 1):
+                self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
+
+            s.path = list(p_list)
+
+            self.propagate(s)
+            Rb = self.calculate_bit_rate(s, strategy)
+            if Rb == 0:
                 p = ''
-                for j in p_list:
-                    p += j
-
-                strategy = str(self.nodes[p_list[0]].transceiver)
-
-                s = Lightpath(i.signal_power, channel)
-                # occupy lines
-                for j in range(0, len(p_list) - 1):
-                    self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
-
-                s.path = p_list
-
+                connection.latency = None
+                connection.snr = 0
+                connection.bit_rate = Rb
+            else:
                 # occupy channel for specific path
                 self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
 
                 # find other paths to occupy:
                 # extract lines to find from selected path
                 to_find = list()
-                for ind in range(len(p_list)-1):
+                for ind in range(len(p_list) - 1):
                     to_find.append(str(p_list[ind] + p_list[ind + 1]))
                 # extract list of paths from pandas dataframe
                 for ind in range(len(to_find)):
@@ -286,22 +289,12 @@ class Network(Network4):
                 for ind in range(len(to_change)):
                     self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
 
-                self.propagate(s)
-                Rb = self.calculate_bit_rate(s, strategy)
-                if Rb == 0:
-                    i.latency = None
-                    i.snr = 0
-                    i.bit_rate = Rb
-                else:
-                    i.signal_power = s.signal_power
-                    i.latency = s.latency
+                connection.bit_rate = Rb
+                connection.signal_power = s.signal_power
+                connection.latency = s.latency
 
-                    i.snr = 10 * math.log(s.signal_power/s.noise_power, 10)
+                """connection.snr = 10 * math.log(s.signal_power / s.noise_power, 10)"""
+                connection.snr = s.GSNR_tot
 
-                    i.bit_rate = Rb
-
-                # for print purposes
-                used_paths.append(p)
-
-        return used_paths
+        return p
 

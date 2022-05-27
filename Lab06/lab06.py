@@ -1,19 +1,24 @@
-import random
 import matplotlib.pyplot as plt
 
 from classes.network import Network
-from classes.connection import Connection
 
 
-def path_searcher(N, strat, node_list, pn):
+def path_searcher(N, strat, pn, nodes, req):
     # finding paths based on best gsnr:
-    connections = list()
-    for i in node_list:
-        connections.append(Connection(i[0], i[1]))
 
-    used_paths = N.stream(connections, 'snr')
+    T = list(list())
+    for i in nodes:
+        row = list()
+        for j in nodes:
+            if i == j:
+                row.append(0)
+            else:
+                row.append(req)
+        T.append(row)
+
+    connections, used_paths = N.manage_traffic(T, nodes)
+    # used_paths = N.stream(connections, T, nodes, 'snr')
     path_cnt = 0
-
     for i in connections:
         print("\nConnection " + strat + ": " + str(i.input + "->" + i.output), end='')
 
@@ -23,9 +28,16 @@ def path_searcher(N, strat, node_list, pn):
             path_cnt += 1
         print("\t\t\tBest available SNR path found: " + used_path)
 
-        print("Latency: " + str(i.latency), end='')
-        print("\t\tGSNR: " + str(i.snr))
-        print("\t\tBit rate: " + str(i.bit_rate))
+        if i.latency:
+            print("Latency: " + str(round(i.latency, 7)) + " [s]", end='')
+        else:
+            print("Latency: " + str(i.latency), end='')
+        print("\t\t\t\tGSNR: " + str(round(i.snr, 7)) + " [dB]")
+        print("\t\t\tBit rate: " + str(round(i.bit_rate, 3)) + " [Gb/s]")
+
+    print('\n A  B  C  D  E  F')
+    for i in range(len(T)):
+        print(T[i])
 
     histogram(connections, pn, strat)
 
@@ -37,16 +49,18 @@ def histogram(connections, pn, strat):
     # y = occurrences
     x_GSNR = list()
     x_Rb = list()
-    avg_Rb = 0
+    avg_GSNR = 0
     cnt = 0
     capacity = 0
 
     for i in connections:
         x_GSNR.append(i.snr)
+        avg_GSNR += i.snr
         x_Rb.append(i.bit_rate)
         capacity += i.bit_rate
         cnt += 1
     avg_Rb = capacity/cnt
+    avg_GSNR = avg_GSNR/cnt
 
     plt.subplot(pn)
     plt.hist(x_GSNR, color='mediumturquoise')
@@ -60,7 +74,7 @@ def histogram(connections, pn, strat):
     plt.title(strat+' connection')
     plt.xlabel('Bit-Rate')
 
-
+    avg_GSNR = round(avg_GSNR, 3)
     avg_Rb = round(avg_Rb, 3)
     capacity = capacity/1000
     capacity = round(capacity, 3)
@@ -68,10 +82,12 @@ def histogram(connections, pn, strat):
     pn += 1
     plt.subplot(pn)
     plt.axis('off')
-    plt.annotate(f'Average Bit-Rate: '+ str(avg_Rb) + ' Gb/s',
+    plt.annotate(f'Average GSNR: ' + str(avg_GSNR) + ' dB',
                  xy=(0.1, 0.9), xycoords='axes fraction')
-    plt.annotate(f'Allocated capacity: ' + str(capacity) + ' Tb/s',
+    plt.annotate(f'Average Bit-Rate: '+ str(avg_Rb) + ' Gb/s',
                  xy=(0.1, 0.75), xycoords='axes fraction')
+    plt.annotate(f'Allocated capacity: ' + str(capacity) + ' Tb/s',
+                 xy=(0.1, 0.6), xycoords='axes fraction')
 
 
 # 5. Run the main that evaluates the distribution of the SNR on a list of
@@ -80,6 +96,20 @@ def histogram(connections, pn, strat):
 #    bit rates calculating the overall average. Also calculate the total capacity
 #    allocated into the network. Compare the three results obtained for the
 #    three different transceiver strategies.
+
+# 6. In your main script, modify the way your code generates the connection
+#    requests. Instead of generating a sequence of N random requests, generate
+#    them accordingly to a uniform traffic matrix. A traffic matrix T is
+#    defined as a matrix with a row and a column for each node of the network.
+#    Each element Ti;j represents the bit rate request in Gbps between the
+#    nodes i; j. If Ti;j = 0, there is no connection request between i; j. If
+#    Ti;j = Inf, all the possible achievable traffic is allocated. Add in the class
+#    Network a method that creates and manages the connections given a
+#    traffic matrix. This method chooses a random pair of source-destination
+#    nodes with a non zero request Ti;j . After the connection streaming, the
+#    allocated traffic has to be subtracted to the given traffic matrix. Assume
+#    a uniform distribution: all node pair requests always the same bit rate
+#    of 100 * M Gbps, where M is an increasing integer number (1, 2, 3, ...).
 if __name__ == '__main__':
 
     pn = 331
@@ -93,24 +123,25 @@ if __name__ == '__main__':
 
     # N.draw()
 
-    nodes = N_fixed.nodes.keys()
-    node_list = list()
+    nodes = list(N_fixed.nodes.keys())
+    # old random connections list generation
+    """node_list = list()
 
     for i in range(100):
-        node_list.append(random.sample(nodes, 2))
+        node_list.append(random.sample(nodes, 2))"""
 
     plt.subplots(3, 3, figsize=(9, 7))
 
     # Fixed-rate
-    path_searcher(N_fixed, 'fixed_rate', node_list, pn)
+    path_searcher(N_fixed, 'fixed_rate', pn, nodes, 300)
     pn += 3
 
     # Flex-rate
-    path_searcher(N_flex, 'flex_rate', node_list, pn)
+    path_searcher(N_flex, 'flex_rate', pn, nodes, 600)
     pn += 3
 
     # Shannon
-    path_searcher(N_shannon, 'shannon', node_list, pn)
+    path_searcher(N_shannon, 'shannon', pn, nodes, 1500)
 
     # plt.tight_layout()
     plt.subplots_adjust(hspace=0.7)

@@ -62,6 +62,8 @@ class Lightpath(SignalInformation):
         self._channel = channel
         self._Rs = Rs
         self._df = df
+        self._GSNR = list()
+        self._GSNR_tot = list()
 
     @property
     def channel(self):
@@ -70,3 +72,20 @@ class Lightpath(SignalInformation):
     @property
     def Rs(self):
         return self._Rs
+
+    @property
+    def GSNR(self):
+        return self._GSNR
+
+    @property
+    def GSNR_tot(self):
+        return self._GSNR_tot
+
+    @GSNR.setter
+    def label(self, GSNR):
+        self._GSNR = GSNR
+
+
+    @GSNR_tot.setter
+    def GSNR_tot(self, GSNR_tot):
+        self._GSNR_tot = GSNR_tot

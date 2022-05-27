@@ -9,12 +9,22 @@ class Network4:
     #    symbol rate Rs.
     def calculate_bit_rate(self, l_path, strategy):
         BER_t = 1e-3
+        # GHz
         Rs = l_path.Rs
+        # GHz
         Bn = 12.5
-        Rb = -1
+        Rb = 0
 
-        GSNR = l_path.signal_power/l_path.noise_power
-        GSNR_dB = 10 * math.log(GSNR, 10)
+        sigma = 0
+        for i in range(len(l_path.GSNR)):
+            sigma += 1/l_path.GSNR[i]
+        GSNR = 1/sigma
+
+        l_path.GSNR_tot = GSNR
+
+        """GSNR1 = l_path.signal_power/l_path.noise_power
+        print('\n' + str(GSNR) + '\t\t' + str(GSNR1))"""
+        # GSNR_dB = 10 * math.log(GSNR, 10)
 
         if strategy == 'fixed-rate':
             if GSNR >= 2 * ((erfcinv(2 * BER_t)) ** 2) * Rs/Bn:
@@ -33,7 +43,7 @@ class Network4:
                 Rb = 400
 
         elif strategy == 'shannon':
-            Rb = 2 * Rs * math.log(1+GSNR+Rs/Bn, 2)
+            Rb = 2 * Rs * math.log(1+GSNR*Rs/Bn, 2)
 
         else:
             print('Wrong strategy')

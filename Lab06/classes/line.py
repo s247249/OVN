@@ -14,8 +14,20 @@ class Line(Line5, Line6):
         self._n_amplifiers = 2
         # dB
         self._gain = 16
+
+        # 9. Using the original value of beta_2, run again the main script modifying the
+        #    value of NF to 5 dB. Compare the result by means of the average GSNR
+        #    and the total allocated capacity.
+
+        # RES with T:           300 - 600 - 1500
+        # old:  avg GSNR:       90  - 80  - 86 dB
+        #       capacity:       9   - 18  - 49 Tb/s
+        # new:  avg GSNR:       66  - 59  - 66 dB
+        #       capacity:       9   - 18  - 56 Tb/s
+
         # dB
-        self._noise_figure = 3
+        # self._noise_figure = 3
+        self._noise_figure = 5
         self._NLI_var = NliVar()
 
         for i in range(number_of_channels):
@@ -96,7 +108,11 @@ class Line(Line5, Line6):
         if sig_pow > signal.signal_power:
             signal.signal_power = sig_pow
 
+        # noise[0] = ASE
+        # noise[1] = NLI
         noise = self.noise_generation(sig_pow)
+        signal.GSNR.append(sig_pow/(noise[0] + noise[1]))
+
         signal.update_latency(latency)
         signal.update_noise_power(noise[0] + noise[1])
         for i in self.successive.values():
