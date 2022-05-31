@@ -174,20 +174,6 @@ class Network(PathFind, Network4, Network6, Network7):
 
             # 4. Modify the stream() method of the class Network in order to include this
             #    feature in the evaluation of the path availability.
-            """# Note: I don't check line availability, I just check the availability of the route_space.
-            #       I do that because if the route_space has been occupied, it means that at least 1 line
-            #       has that channel occupied itself, so I don't need to check all the lines in a path"""
-
-            # occupy lines
-            for j in range(0, len(p_list) - 1):
-                self.lines[str(p_list[j] + p_list[j+1])].state[channel - 1] = 0
-                """# I can, however, still update the attribute
-                flag = 0
-                for ch in range(self.number_of_channels):
-                    if self.lines[str(p_list[j] + p_list[j + 1])].state[ch] == 1:
-                        flag = 1
-                if not flag:
-                    self.lines[str(p_list[j] + p_list[j + 1])].in_service = 0"""
 
             s.path = list(p_list)
 
@@ -199,6 +185,10 @@ class Network(PathFind, Network4, Network6, Network7):
                 connection.snr = 0
                 connection.bit_rate = Rb
             else:
+                # occupy lines
+                for j in range(0, len(p_list) - 1):
+                    self.lines[str(p_list[j] + p_list[j + 1])].state[channel - 1] = 0
+
                 # occupy channel for specific path
                 self.route_space.loc[self.route_space['Path'] == p, str(channel)] = 0
 
@@ -208,11 +198,12 @@ class Network(PathFind, Network4, Network6, Network7):
                 for ind in range(len(p_list) - 1):
                     to_find.append(str(p_list[ind] + p_list[ind + 1]))
                 # extract list of paths from pandas dataframe
+                to_change = list()
                 for ind in range(len(to_find)):
-                    to_change = [a for a in self.route_space['Path'] if to_find[ind] in a]
-                # update dataframe using list of paths
-                for ind in range(len(to_change)):
-                    self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
+                    to_change = [a for a in self.route_space['Path'] if to_find[ind] in a and a not in to_change]
+                    # update dataframe using list of paths
+                    for ind1 in range(len(to_change)):
+                        self.route_space.loc[self.route_space['Path'] == to_change[ind1], str(channel)] = 0
 
                 # The update of the logger is performed immediately after the update of the routing-space.
 

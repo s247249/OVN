@@ -283,11 +283,12 @@ class Network(Network4, Network6):
                 for ind in range(len(p_list) - 1):
                     to_find.append(str(p_list[ind] + p_list[ind + 1]))
                 # extract list of paths from pandas dataframe
+                to_change = list()
                 for ind in range(len(to_find)):
-                    to_change = [a for a in self.route_space['Path'] if to_find[ind] in a]
-                # update dataframe using list of paths
-                for ind in range(len(to_change)):
-                    self.route_space.loc[self.route_space['Path'] == to_change[ind], str(channel)] = 0
+                    to_change = [a for a in self.route_space['Path'] if to_find[ind] in a and a not in to_change]
+                    # update dataframe using list of paths
+                    for ind1 in range(len(to_change)):
+                        self.route_space.loc[self.route_space['Path'] == to_change[ind1], str(channel)] = 0
 
                 connection.bit_rate = Rb
                 connection.signal_power = s.signal_power
