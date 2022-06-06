@@ -37,10 +37,22 @@ class PathFind():
 
         for i in self.weighted_paths['Routes']:
             if i == str(in_node + "->" + out_node):
-
-                # free lines check
                 path = self.weighted_paths['Path'][cnt]
+
+                # 4. Modify the stream() method of the class Network in order to include this
+                #    feature in the evaluation of the path availability.
+
+                # lines.in_service check
+                flag = 0
                 path_list = list(path)
+                for j in range(0, len(path_list) - 1):
+                    if self.lines[path_list[j] + path_list[j + 1]].in_service == 0:
+                        flag = 1
+                        break
+                if flag:
+                    cnt += 1
+                    continue
+
                 channel = int()
                 flag = 1
                 for k in range(1, self.number_of_channels + 1):
@@ -71,19 +83,29 @@ class PathFind():
 
         for i in self.weighted_paths['Routes']:
             if i == str(in_node + "->" + out_node):
-
-                # free lines check
                 path = self.weighted_paths['Path'][cnt]
+
+                # 4. Modify the stream() method of the class Network in order to include this
+                #    feature in the evaluation of the path availability.
+
+                # lines.in_service check
+                flag = 0
                 path_list = list(path)
+                for j in range(0, len(path_list) - 1):
+                    if self.lines[path_list[j] + path_list[j + 1]].in_service == 0:
+                        flag = 1
+                        break
+                if flag:
+                    cnt += 1
+                    continue
+
                 channel = int()
                 flag = 1
-
                 for k in range(1, self.number_of_channels + 1):
                     if int(self.route_space.loc[self.route_space['Path'] == path, str(k)]) != 0:
                         channel = k
                         flag = 0
                         break
-
                 # if I've found no channels, check the next route
                 if flag:
                     cnt += 1

@@ -172,9 +172,6 @@ class Network(PathFind, Network4, Network6, Network7):
 
             s = Lightpath(connection.signal_power, channel)
 
-            # 4. Modify the stream() method of the class Network in order to include this
-            #    feature in the evaluation of the path availability.
-
             s.path = list(p_list)
 
             self.propagate(s)
@@ -206,6 +203,8 @@ class Network(PathFind, Network4, Network6, Network7):
                         self.route_space.loc[self.route_space['Path'] == to_change[ind1], str(channel)] = 0
 
                 # The update of the logger is performed immediately after the update of the routing-space.
+                update_logger(self, float(s.latency), p, str(channel), int(Rb))
+                row_dict = {'Epoch Time': float(s.latency), 'Path': p, 'Channel ID': str(channel), 'Bit Rate': int(Rb)}
 
                 connection.bit_rate = Rb
                 connection.signal_power = s.signal_power
