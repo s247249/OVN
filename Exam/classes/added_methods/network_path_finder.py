@@ -28,7 +28,7 @@ class PathFind():
                 pandas_dict['Routes'].append(i)
                 pandas_dict['Path'].append(j)
 
-                signal = Lightpath(sig_pow, -1)
+                signal = Lightpath(sig_pow)
                 signal.path = list(str(j))
                 spectral_info = self.probe(signal)
                 for k in spectral_info.keys():
@@ -87,10 +87,7 @@ class PathFind():
 
         for i in self.weighted_paths['Routes']:
             if i == str(in_node + "->" + out_node):
-                path = self.weighted_paths['Path'][cnt]
-
-                # 4. Modify the stream() method of the class Network in order to include this
-                #    feature in the evaluation of the path availability.
+                path = self.route_space['Path'][cnt]
 
                 # lines.in_service check
                 flag = 0
@@ -134,9 +131,6 @@ class PathFind():
         for i in self.weighted_paths['Routes']:
             if i == str(in_node + "->" + out_node):
                 path = self.weighted_paths['Path'][cnt]
-
-                # 4. Modify the stream() method of the class Network in order to include this
-                #    feature in the evaluation of the path availability.
 
                 # lines.in_service check
                 flag = 0

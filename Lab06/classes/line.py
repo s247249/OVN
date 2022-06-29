@@ -120,8 +120,15 @@ class Line(Line5, Line6):
 
     def probe(self, signal):
         latency = self.latency_generation()
+
+        sig_pow = self.optimized_launch_power()
+        if sig_pow > signal.signal_power:
+            signal.signal_power = sig_pow
+
         noise = self.noise_generation(signal.signal_power)
+        signal.GSNR.append(sig_pow / (noise[0] + noise[1]))
+
         signal.update_latency(latency)
-        signal.update_noise_power(noise)
+        signal.update_noise_power(noise[0] + noise[1])
         for i in self.successive.values():
             i.probe(signal)

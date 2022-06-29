@@ -3,17 +3,16 @@ import math
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from node import Node
-from line import Line
-from signal_information import Lightpath
-from ..added_methods.lab04_network import Network4 as net4
+from .node import Node
+from .line import Line
+from .signal_information import Lightpath
+from .added_methods.lab04_network import Network4 as net4
 
 
 class Network:
     def __init__(self, number_of_channels, file_name="../Lab01/nodes.json"):
         self._nodes = {}
         self._lines = {}
-        self._weighted_paths = pd.read_csv("../../Lab01/Network.csv")
         self._number_of_channels = number_of_channels
 
         rf = open(file_name, "r")
@@ -44,6 +43,8 @@ class Network:
                 float_tuple = (x, y)
                 length = math.sqrt(float_tuple[0]**2 + float_tuple[1]**2)
                 self._lines[label] = Line(label, length, number_of_channels)
+
+        self._weighted_paths = self.weighted_paths_gen(0.001)
 
         route_space_dict = {}
         route_space_dict['Path'] = list()
@@ -80,6 +81,49 @@ class Network:
     def reset_route_space(self):
         for i in range(self.number_of_channels):
             self.route_space[str(i + 1)] = int(1)
+
+    def weighted_paths_gen(self, sig_pow=0.001):
+        path_dict = {}
+        pandas_dict = {'Routes': list(),
+                       'Path': list(),
+                       'signal_power': list(),
+                       'noise_power': list(),
+                       'latency': list(),
+                       'SNR': list()
+                       }
+
+        # generate strings for 'Path' and 'Routes' of pandas_dict
+        nodes = self.nodes.keys()
+        for i in nodes:
+            for j in nodes:
+                if i != j:
+                    path_dict[i + "->" + j] = self.find_paths(i, j)
+
+        for i in path_dict.keys():
+            for j in path_dict[i]:
+                pandas_dict['Routes'].append(i)
+                pandas_dict['Path'].append(j)
+
+                signal = Lightpath(sig_pow, -1)
+                signal.path = list(str(j))
+                spectral_info = self.probe(signal)
+                for k in spectral_info.keys():
+                    pandas_dict[k].append(spectral_info[k])
+
+                SNR = 10 * math.log(spectral_info['signal_power'] / spectral_info['noise_power'], 10)
+                pandas_dict['SNR'].append(SNR)
+
+        pandas_dict['Signal_power (W)'] = list(pandas_dict['signal_power'])
+        pandas_dict['Noise_power (W)'] = list(pandas_dict['noise_power'])
+        pandas_dict['Latency (s)'] = list(pandas_dict['latency'])
+        pandas_dict['SNR (dB)'] = list(pandas_dict['SNR'])
+        del pandas_dict['signal_power']
+        del pandas_dict['noise_power']
+        del pandas_dict['latency']
+        del pandas_dict['SNR']
+
+        df = pd.DataFrame(pandas_dict)
+        return df
 
     def connect(self):
         for i in self.nodes.values():

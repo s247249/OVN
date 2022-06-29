@@ -23,7 +23,7 @@ def path_searcher(N, strat, pn, nodes, req):
     """path_cnt = 0"""
     connections_printer(connections, strat)
 
-    print('\n A  B  C  D  E  F')
+    print('\n A  B  C  D  E')
     for i in range(len(T)):
         print(T[i])
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     N_flex.connect()
     N_shannon.connect()
 
-    # N.draw()
+    N_fixed.draw()
 
     nodes = list(N_fixed.nodes.keys())
     # old random connections list generation
@@ -126,17 +126,12 @@ if __name__ == '__main__':
     pn += 3
 
     # Flex-rate
-    connections_flex, T_flex = path_searcher(N_flex, 'flex_rate', pn, nodes, 500)
+    connections_flex, T_flex = path_searcher(N_flex, 'flex_rate', pn, nodes, 400)
     pn += 3
 
     # Shannon
     connections_shannon, T_shannon = path_searcher(N_shannon, 'shannon', pn, nodes, 1500)
 
-    # 7. Run the main script of the point 7 of Lab 8 with for each transceiver
-    # technology. At the end of a single run, use the strong_failure() method on
-    # the most congested link (consider a single direction, e.g. only 'AB', not
-    # both 'AB' and 'BA') and try to perform the recovery keeping that link
-    # out of service. How is the network is doing?
     chosen = {'Net': N_fixed, 'connection': connections_fixed, 'T': T_fixed, 'strat': 'fixed'}
 
     max_cnt = 0

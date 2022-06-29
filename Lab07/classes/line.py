@@ -79,7 +79,7 @@ class Line(Line5, Line6):
     def length(self, length):
         self._length = length
 
-    @length.setter
+    @in_service.setter
     def in_service(self, in_service):
         self._in_service = in_service
 
@@ -117,8 +117,15 @@ class Line(Line5, Line6):
 
     def probe(self, signal):
         latency = self.latency_generation()
+
+        sig_pow = self.optimized_launch_power()
+        if sig_pow > signal.signal_power:
+            signal.signal_power = sig_pow
+
         noise = self.noise_generation(signal.signal_power)
+        signal.GSNR.append(sig_pow / (noise[0] + noise[1]))
+
         signal.update_latency(latency)
-        signal.update_noise_power(noise)
+        signal.update_noise_power(noise[0] + noise[1])
         for i in self.successive.values():
             i.probe(signal)

@@ -16,7 +16,6 @@ class Network(PathFind, Network4, Network6, Network7):
     def __init__(self, number_of_channels, file_name="../Lab01/nodes.json"):
         self._nodes = {}
         self._lines = {}
-        self._weighted_paths = pd.read_csv("../Lab01/Network.csv")
         self._number_of_channels = number_of_channels
 
         rf = open(file_name, "r")
@@ -47,6 +46,8 @@ class Network(PathFind, Network4, Network6, Network7):
                 float_tuple = (x, y)
                 length = math.sqrt(float_tuple[0]**2 + float_tuple[1]**2)
                 self._lines[label] = Line(label, length, number_of_channels)
+
+        self._weighted_paths = self.weighted_paths_gen(0.001)
 
         route_space_dict = {'Path': list()}
         for i in self.nodes.keys():
@@ -195,15 +196,21 @@ class Network(PathFind, Network4, Network6, Network7):
                 for ind in range(len(p_list) - 1):
                     to_find.append(str(p_list[ind] + p_list[ind + 1]))
                 # extract list of paths from pandas dataframe
+
+                # print('\n' + p + ' ch-' + str(channel))
+
                 to_change = list()
                 for ind in range(len(to_find)):
                     to_change = [a for a in self.route_space['Path'] if to_find[ind] in a and a not in to_change]
+
+                    # print(str(to_find[ind]) + ' ' + str(channel) + ' ' + str(to_change))
+
                     # update dataframe using list of paths
                     for ind1 in range(len(to_change)):
                         self.route_space.loc[self.route_space['Path'] == to_change[ind1], str(channel)] = 0
 
                 # The update of the logger is performed immediately after the update of the routing-space.
-                update_logger(self, float(s.latency), p, str(channel), int(Rb))
+                self.update_logger(float(s.latency), p, str(channel), int(Rb))
                 row_dict = {'Epoch Time': float(s.latency), 'Path': p, 'Channel ID': str(channel), 'Bit Rate': int(Rb)}
 
                 connection.bit_rate = Rb
