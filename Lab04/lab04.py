@@ -85,12 +85,12 @@ if __name__ == '__main__':
         node_list.append(random.sample(nodes, 2))
 
     # Fixed-rate
-    #path_searcher(N_fixed, 'fixed_rate', node_list)
+    path_searcher(N_fixed, 'fixed_rate', node_list)
 
     # Flex-rate
-    #path_searcher(N_flex, 'flex_rate', node_list)
+    path_searcher(N_flex, 'flex_rate', node_list)
 
     # Shannon
-    #path_searcher(N_shannon, 'shannon', node_list)
+    path_searcher(N_shannon, 'shannon', node_list)
 
     N_shannon.graph()
