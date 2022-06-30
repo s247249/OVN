@@ -93,4 +93,4 @@ if __name__ == '__main__':
     # Shannon
     path_searcher(N_shannon, 'shannon', node_list)
 
-    N_fixed.graph()
+    N_shannon.graph()

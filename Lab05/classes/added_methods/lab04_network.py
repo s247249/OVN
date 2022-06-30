@@ -48,7 +48,7 @@ class Network4:
                 Rb = 400
 
         elif strategy == 'shannon':
-            Rb = 2 * Rs * math.log(1+GSNR+Rs/Bn, 2)
+            Rb = 2 * Rs * math.log(1+GSNR*Rs/Bn, 2)
 
         else:
             print('Wrong strategy')

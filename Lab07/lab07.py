@@ -110,7 +110,7 @@ if __name__ == '__main__':
     N_flex.connect()
     N_shannon.connect()
 
-    # N.draw()
+    N_fixed.draw()
 
     nodes = list(N_fixed.nodes.keys())
     # old random connections list generation

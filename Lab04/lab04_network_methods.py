@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import math
+import numpy as np
 from scipy.special import erfcinv
 
 
@@ -48,7 +49,7 @@ class Network4:
                 Rb = 400
 
         elif strategy == 'shannon':
-            Rb = 2 * Rs * math.log(1+GSNR+Rs/Bn, 2)
+            Rb = 2 * Rs * math.log(1+GSNR*Rs/Bn, 2)
 
         else:
             print('Wrong strategy')
@@ -103,12 +104,35 @@ class Network4:
         # PM-16QAM (400Gbps)
         x1 = float(x2)
         # max GSNR arbitrarily put at 100 (linear)
-        x2 = 2 * Rs * math.log(1 + 100 + Rs / Bn, 2)
-        x = (10 * math.log(x1, 10), 10 * math.log(x2, 10))
+        """x2 = 2 * Rs * math.log(1 + 100 + Rs / Bn, 2)
+        x = (10 * math.log(x1, 10), 10 * math.log(x2, 10))"""
+        x = (10 * math.log(x1, 10), 30)
         y = (400, 400)
         plt.plot(x, y, color='r', linestyle='-')
 
+        x_dB = np.linspace(0, 30, 100)
+        x = 10 ** (x_dB/10)
+        # Rb = 2 * Rs * math.log(1 + GSNR * Rs / Bn, 2)
+        y = 2 * Rs * np.log2(1 + (x * Rs/Bn))
+        plt.plot(x_dB, y, color='r', linestyle='-')
+
         plt.xlabel('GSNR (dB)')
         plt.ylabel('Bit Rate (Gbps)')
+
+        plt.annotate(f'Fixed-Rate + Flex-Rate',
+                     xy=(0.48, 0.12), xycoords='axes fraction')
+        plt.annotate(f'Flex-Rate',
+                     xy=(0.6, 0.24), xycoords='axes fraction')
+        plt.annotate(f'Flex-Rate',
+                     xy=(0.7, 0.49), xycoords='axes fraction')
+        plt.annotate(f'Shannon-Rate',
+                     xy=(0.65, 0.9), xycoords='axes fraction')
+
+        plt.annotate(f'PM-QPSK',
+                     xy=(0.03, 0.155), xycoords='axes fraction')
+        plt.annotate(f'PM-8-QAM',
+                     xy=(0.03, 0.28), xycoords='axes fraction')
+        plt.annotate(f'PM-16-QAM',
+                     xy=(0.03, 0.53), xycoords='axes fraction')
 
         plt.show()
