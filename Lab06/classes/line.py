@@ -26,8 +26,8 @@ class Line(Line5, Line6):
         #       capacity:       9   - 18  - 56 Tb/s
 
         # dB
-        # self._noise_figure = 3
-        self._noise_figure = 5
+        self._noise_figure = 3
+        # self._noise_figure = 5
         self._NLI_var = NliVar()
 
         for i in range(number_of_channels):

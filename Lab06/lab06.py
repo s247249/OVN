@@ -16,17 +16,18 @@ def path_searcher(N, strat, pn, nodes, req):
                 row.append(req)
         T.append(row)
 
-    connections, used_paths = N.manage_traffic(T, nodes)
+    connections = list()
+    connections = N.manage_traffic(T, nodes, connections)
     # used_paths = N.stream(connections, T, nodes, 'snr')
     path_cnt = 0
     for i in connections:
         print("\nConnection " + strat + ": " + str(i.input + "->" + i.output), end='')
 
-        used_path = 'None'
+        """used_path = 'None'
         if i.snr != 0:
             used_path = used_paths[path_cnt]
-            path_cnt += 1
-        print("\t\t\tBest available SNR path found: " + used_path)
+            path_cnt += 1"""
+        print("\t\t\tBest available SNR path found: " + i.path)
 
         if i.latency:
             print("Latency: " + str(round(i.latency, 7)) + " [s]", end='')
@@ -137,7 +138,7 @@ if __name__ == '__main__':
     pn += 3
 
     # Flex-rate
-    path_searcher(N_flex, 'flex_rate', pn, nodes, 600)
+    path_searcher(N_flex, 'flex_rate', pn, nodes, 500)
     pn += 3
 
     # Shannon

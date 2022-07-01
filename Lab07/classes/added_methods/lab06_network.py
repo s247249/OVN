@@ -6,7 +6,6 @@ class Network6:
         for i in range(len(T)):
             for j in range(len(T)):
                 # I want to stream a single connection at a time
-                # in stream, i want to occupy every line of T[i][j] used in the path
                 while T[i][j] > 0:
                     connection = Connection(nodes[i], nodes[j])
                     path = self.stream(connection, 'snr')
