@@ -132,7 +132,7 @@ if __name__ == '__main__':
     # Shannon
     connections_shannon, T_shannon = path_searcher(N_shannon, 'shannon', pn, nodes, 1500)
 
-    chosen = {'Net': N_fixed, 'connection': connections_fixed, 'T': T_fixed, 'strat': 'fixed'}
+    chosen = {'Net': N_flex, 'connection': connections_flex, 'T': T_flex, 'strat': 'flex'}
 
     max_cnt = 0
     chosen_line = ''

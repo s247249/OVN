@@ -14,8 +14,8 @@ class Line(Line5, Line6):
         # dB
         self._gain = 16
         # dB
-        # self._noise_figure = 3
-        self._noise_figure = 5
+        self._noise_figure = 3
+        # self._noise_figure = 5
         self._NLI_var = NliVar()
 
         # 3. Add to the class Line an attribute called in service which is a Boolean

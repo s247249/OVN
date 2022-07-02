@@ -14,8 +14,8 @@ class Line(Line5, Line6):
         # dB
         self._gain = 16
         # dB
-        # self._noise_figure = 3
-        self._noise_figure = 5
+        self._noise_figure = 3
+        # self._noise_figure = 5
         self._NLI_var = NliVar()
         self._in_service = bool(1)
 
